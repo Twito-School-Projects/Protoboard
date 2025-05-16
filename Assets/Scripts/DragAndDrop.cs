@@ -2,16 +2,16 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class DraggableUIElement : MonoBehaviour
+public class DragAndDrop : MonoBehaviour
 {
     [SerializeField]
     private InputAction mouseClick;
 
     [SerializeField]
-    private float mouseDragPhysicsSpeed;
+    private float mouseDragSpeed;
 
     private Camera mainCamera;
-    private WaitForFixedUpdate waitForFixedUpdate = new WaitForFixedUpdate();
+    private Vector3 velocity;
 
     private void OnEnable()
     {
@@ -32,10 +32,9 @@ public class DraggableUIElement : MonoBehaviour
 
         if (Physics.Raycast(ray, out hit))
         {
-            if (hit.collider != null)
+            if (hit.collider != null && hit.collider.gameObject.CompareTag("Draggable"))
             {
                 StartCoroutine(DragUpdate(hit.collider.gameObject));
-                Debug.Log("Mouse clicked on " + gameObject.name);
             }
         }
     }
@@ -43,20 +42,20 @@ public class DraggableUIElement : MonoBehaviour
     private IEnumerator DragUpdate(GameObject clickedObject)
     {
         float initialDistance = Vector3.Distance(clickedObject.transform.position, mainCamera.transform.position);
-        clickedObject.TryGetComponent<Rigidbody>(out var rb);
+        clickedObject.TryGetComponent<IDrag>(out IDrag dragComponent);
 
+        dragComponent?.OnDragStart();
         while (mouseClick.ReadValue<float>() != 0)
         {
             Ray ray = mainCamera.ScreenPointToRay(Mouse.current.position.ReadValue());
-            if (rb != null)
-            {
-                Vector3 direction = ray.GetPoint(initialDistance) - clickedObject.transform.position;
-                Vector3 xzDirection = new Vector3(direction.x, 0f, direction.z);
+            Vector3 direction = ray.GetPoint(initialDistance) - clickedObject.transform.position;
+            Vector3 xzDirection = new Vector3(direction.x, 0f, direction.z);
 
-                rb.linearVelocity = xzDirection * mouseDragPhysicsSpeed;
-                yield return waitForFixedUpdate;
-            }
+            clickedObject.transform.position = Vector3.SmoothDamp(clickedObject.transform.position, ray.GetPoint(initialDistance), ref velocity, mouseDragSpeed);
+            clickedObject.transform.position = new Vector3(clickedObject.transform.position.x, 4, clickedObject.transform.position.z);
+            yield return null;
         }
+        dragComponent?.OnDragEnd();
     }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created

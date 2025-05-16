@@ -2,15 +2,33 @@ using UnityEngine;
 
 public class Hole : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    public bool powered;
+
+    private Material material;
+    private MeshRenderer MeshRenderer;
+
+    private Color startColor;
+
+    public bool isConnectedToGround;
+    public bool isCconnectedToPower;
+    public bool isFloating => !isConnectedToGround;
+
+    private void Start()
     {
-        
+        MeshRenderer = GetComponent<MeshRenderer>();
+        material = MeshRenderer.material;
+
+        startColor = material.color;
+        material.color = Color.clear;
     }
 
-    // Update is called once per frame
-    void Update()
+    public void Highlight()
     {
-        
+        material.color = startColor;
+    }
+
+    public void RemoveHighlight()
+    {
+        material.color = Color.clear;
     }
 }

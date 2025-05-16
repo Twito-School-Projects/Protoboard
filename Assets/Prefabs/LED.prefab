@@ -11,7 +11,8 @@ GameObject:
   - component: {fileID: 6800910828623598696}
   - component: {fileID: 7624149729935924173}
   - component: {fileID: 5632486361931476743}
-  - component: {fileID: 153807796122041839}
+  - component: {fileID: 6837766550732168557}
+  - component: {fileID: 7803025714574368576}
   m_Layer: 0
   m_Name: LED
   m_TagString: Untagged
@@ -88,7 +89,19 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!54 &153807796122041839
+--- !u!114 &6837766550732168557
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6136824031313645266}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9e0e3dff034ae7148b20de1d0e4a1b77, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!54 &7803025714574368576
 Rigidbody:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
