@@ -1,5 +1,4 @@
 using UnityEditor;
-using UnityEngine;
 
 [CustomEditor(typeof(Breadboard))]
 public class BreadboardEditor : Editor
@@ -9,16 +8,16 @@ public class BreadboardEditor : Editor
         DrawDefaultInspector();
 
         Breadboard myScript = (Breadboard)target;
-        if (GUILayout.Button("Add Terminals"))
-        {
-            myScript.AddTerminalConnectionPoints(true);
-            myScript.AddTerminalConnectionPoints(false);
-        }
+        //if (GUILayout.Button("Add Terminals"))
+        //{
+        //    myScript.AddTerminalConnectionPoints(true);
+        //    myScript.AddTerminalConnectionPoints(false);
+        //}
 
-        if (GUILayout.Button("Add Rails"))
-        {
-            myScript.AddRailConnectionPoints(true);
-            myScript.AddRailConnectionPoints(false);
-        }
+        //if (GUILayout.Button("Add Rails"))
+        //{
+        //    myScript.AddRailConnectionPoints(true);
+        //    myScript.AddRailConnectionPoints(false);
+        //}
     }
 }

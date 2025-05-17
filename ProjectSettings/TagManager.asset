@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Draggable
   - Hole
+  - Wire
   layers:
   - Default
   - TransparentFX

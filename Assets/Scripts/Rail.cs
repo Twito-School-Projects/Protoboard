@@ -1,14 +1,15 @@
-using UnityEngine;
+using System;
 
-public class Rail : MonoBehaviour
+public enum Charge
+{ Positive, Negative, None }
+
+[Serializable]
+public class Rail : BreadboardSection
 {
-    private Hole[] holes;
+    public Charge charge = Charge.None;
 
-    private void Start()
+    public Rail(Charge charge = Charge.None)
     {
-    }
-
-    private void Update()
-    {
+        this.charge = charge;
     }
 }
