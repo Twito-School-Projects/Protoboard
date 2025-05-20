@@ -52,6 +52,7 @@ public class Breadboard : ElectronicComponent
 
             hole.rowChar = row;
             hole.column = column;
+            hole.charge = Charge.None;
 
             int indexOfTerminal = hole.row <= 5 ? column : column + numberOfColumns;
 
@@ -95,6 +96,7 @@ public class Breadboard : ElectronicComponent
 
             Hole hole = child.AddComponent<Hole>();
 
+            hole.hasConstantCharge = true;
             hole.rowChar = rowPosition;
             hole.column = column;
             hole.charge = charge == '+' ? Charge.Positive : Charge.Negative;

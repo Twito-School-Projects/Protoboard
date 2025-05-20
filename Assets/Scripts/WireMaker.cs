@@ -17,13 +17,16 @@ public class WireMaker : MonoBehaviour
     private bool isMakingWire = false;
 
     [SerializeField]
-    private Hole startHole = null;
+    private ConnectionPoint startConnectPoint = null;
 
     [SerializeField]
-    private Hole endHole = null;
+    private ConnectionPoint endConnectPoint = null;
 
     [SerializeField]
-    private Hole highlightedHole;
+    private ConnectionPoint highlightedConnectPoint;
+
+    [SerializeField]
+    private Transform wiresContainer;
 
     private int numberOfWires = 0;
 
@@ -55,9 +58,9 @@ public class WireMaker : MonoBehaviour
 
     private void Update()
     {
-        if (highlightedHole != null)
+        if (highlightedConnectPoint != null)
         {
-            highlightedHole.Highlight();
+            highlightedConnectPoint.Highlight();
         }
 
         Ray ray = mainCamera.ScreenPointToRay(Mouse.current.position.ReadValue());
@@ -65,23 +68,23 @@ public class WireMaker : MonoBehaviour
 
         if (Physics.Raycast(ray, out hit))
         {
-            if (hit.collider != null && hit.collider.gameObject.CompareTag("Hole"))
+            if (hit.collider != null && hit.collider.gameObject.CompareTag("ConnectionPoint"))
             {
-                if (highlightedHole != null && highlightedHole.gameObject.name != hit.collider.gameObject.name)
+                if (highlightedConnectPoint != null && highlightedConnectPoint.gameObject.name != hit.collider.gameObject.name)
                 {
-                    highlightedHole.RemoveHighlight();
-                    highlightedHole = null;
+                    highlightedConnectPoint.RemoveHighlight();
+                    highlightedConnectPoint = null;
 
                     return;
                 }
 
-                highlightedHole = hit.collider.gameObject.GetComponent<Hole>();
-                highlightedHole.Highlight();
+                highlightedConnectPoint = hit.collider.gameObject.GetComponent<ConnectionPoint>();
+                highlightedConnectPoint.Highlight();
             }
             else
             {
-                if (highlightedHole != null)
-                    highlightedHole.RemoveHighlight();
+                if (highlightedConnectPoint != null)
+                    highlightedConnectPoint.RemoveHighlight();
             }
         }
     }
@@ -93,7 +96,7 @@ public class WireMaker : MonoBehaviour
 
         if (Physics.Raycast(ray, out hit))
         {
-            if (hit.collider != null && hit.collider.gameObject.CompareTag("Hole"))
+            if (hit.collider != null && hit.collider.gameObject.CompareTag("ConnectionPoint"))
             {
                 if (!isMakingWire)
                     StartWireCreator(hit.collider.gameObject);
@@ -115,23 +118,28 @@ public class WireMaker : MonoBehaviour
             return;
 
         //If we're clicking the same hole
-        if (startHole != null && startGameObject.name == startHole.gameObject.name)
+        if (startConnectPoint != null && startGameObject.name == startConnectPoint.gameObject.name)
         {
+            startConnectPoint.RemoveHighlight(true);
+            startConnectPoint = null;
+            Debug.Log("Cancelled wire creation, clicked the same hole.");
+            isMakingWire = false;
             return;
         }
 
-        startGameObject.TryGetComponent(out startHole);
+        startGameObject.TryGetComponent(out startConnectPoint);
 
-        if (startHole.isTaken)
+        if (startConnectPoint.isTaken)
         {
-            startHole.RemoveHighlight();
-            startHole = null;
+            startConnectPoint.RemoveHighlight(true);
+            startConnectPoint = null;
+            isMakingWire = false;
             Debug.Log("This hole is already taken, cancelling wire creation.");
             return;
         }
 
         isMakingWire = true;
-        startHole.Highlight(true);
+        startConnectPoint.Highlight(true);
 
         Debug.Log("Creating wire from hole: " + startGameObject.name);
     }
@@ -142,39 +150,46 @@ public class WireMaker : MonoBehaviour
             return;
 
         //If the end hole is the same as the start hole
-        if (endGameObject.name == startHole.gameObject.name)
+        if (endGameObject.name == startConnectPoint.gameObject.name)
         {
             Debug.Log("Clicked the same hole, cancelling wire creation.");
             return;
         }
 
-        endGameObject.TryGetComponent(out endHole);
+        endGameObject.TryGetComponent(out endConnectPoint);
 
-        if (endHole.isTaken)
+        if (endConnectPoint.isTaken)
         {
             Debug.Log("This hole is already taken, choose another.");
-            endHole = null;
+            endConnectPoint = null;
             return;
         }
-        else if (startHole.charge != Charge.None && endHole.charge != Charge.None && startHole.charge != endHole.charge)
+
+        bool isInvalidCharge =
+            (startConnectPoint.hasConstantCharge && endConnectPoint.hasConstantCharge) &&
+            startConnectPoint.charge != Charge.None &&
+            endConnectPoint.charge != Charge.None &&
+            startConnectPoint.charge != endConnectPoint.charge;
+
+        if (isInvalidCharge)
         {
             Debug.Log("Cannot connect positive to negative");
-            endHole = null;
+            endConnectPoint = null;
             return;
         }
 
         Debug.Log("Ending wire from hole: " + endGameObject.name);
 
-        CreateWireBetweenTwoPoints(startHole.transform.position, endHole.transform.position);
+        CreateWireBetweenTwoPoints(startConnectPoint.transform.position, endConnectPoint.transform.position);
 
-        startHole.RemoveHighlight(true);
-        endHole.RemoveHighlight(true);
+        startConnectPoint.RemoveHighlight(true);
+        endConnectPoint.RemoveHighlight(true);
 
-        startHole.isTaken = true;
-        endHole.isTaken = true;
+        startConnectPoint.isTaken = true;
+        endConnectPoint.isTaken = true;
 
-        startHole = null;
-        endHole = null;
+        startConnectPoint = null;
+        endConnectPoint = null;
         isMakingWire = false;
         numberOfWires++;
     }
@@ -187,20 +202,22 @@ public class WireMaker : MonoBehaviour
 
         midPoint.y += (numberOfWires * wirePrefab.transform.localScale.y);
 
-        var parent = startHole.parentBreadboard.transform;
-        var wire = Instantiate(wirePrefab, midPoint, rotation, parent);
+        var wire = Instantiate(wirePrefab, midPoint, rotation, wiresContainer);
         var wireComponent = wire.GetComponent<Wire>();
 
         wire.transform.localScale = new Vector3(
-            wire.transform.localScale.x / parent.localScale.x,
-            wire.transform.localScale.y / parent.localScale.y,
-            distance / parent.localScale.z
+            wire.transform.localScale.x,
+            wire.transform.localScale.y,
+            distance
         );
 
-        wireComponent.start = startHole;
-        wireComponent.end = endHole;
+        wireComponent.start = startConnectPoint;
+        wireComponent.end = endConnectPoint;
         wireComponent.ChangeToRandomColour();
 
-        startHole.ConnectToHole(endHole);
+        startConnectPoint.wire = wireComponent;
+        endConnectPoint.wire = wireComponent;
+
+        startConnectPoint.ConnectToHole(endConnectPoint);
     }
 }

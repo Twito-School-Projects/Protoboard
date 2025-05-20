@@ -3,6 +3,7 @@ using UnityEngine;
 public class ElectronicComponent : MonoBehaviour, IDrag
 {
     protected Rigidbody rb;
+    public bool isUnidirectional = true;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     protected void Start()

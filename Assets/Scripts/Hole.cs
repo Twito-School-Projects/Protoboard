@@ -1,14 +1,7 @@
 using UnityEngine;
 
-public class Hole : MonoBehaviour
+public class Hole : ConnectionPoint
 {
-    public bool powered = false;
-
-    private MeshRenderer MeshRenderer;
-    private Material material;
-    private Color startColor;
-    private bool isLockedHighlight = false;
-
     public char rowChar;
     public int row => rowChar - 'A' + 1; // Convert char to int (A=1, B=2, C=3, etc.)
     public int column;
@@ -17,22 +10,10 @@ public class Hole : MonoBehaviour
     public Terminal parentTerminal;
     public Rail parentRail;
 
-    public Charge charge = Charge.None;
-    public bool isTaken = false;
-
-    public Hole nextConnectedHole;
-    public Hole previousConnectedHole;
-
-    private async void Start()
+    private new void Start()
     {
-        MeshRenderer = GetComponent<MeshRenderer>();
-        material = MeshRenderer.material;
-
-        startColor = material.color;
-        material.color = Color.clear;
-
-        //await Task.Delay(200);
-        //PowerSection();
+        base.Start();
+        powered = false;
     }
 
     private void Update()
@@ -43,55 +24,48 @@ public class Hole : MonoBehaviour
         }
     }
 
-    public void Highlight(bool lockHighlight = false)
+    public override void ConnectToHole(ConnectionPoint hole)
     {
-        if (lockHighlight) isLockedHighlight = true;
-        material.color = startColor;
-    }
-
-    public void RemoveHighlight(bool overrideHighlight = false)
-    {
-        if ((overrideHighlight && isLockedHighlight) || !isLockedHighlight)
-            material.color = Color.clear;
-    }
-
-    public void ConnectToHole(Hole hole)
-    {
-        if (nextConnectedHole == null)
+        if (nextConnectedPoint == null)
         {
-            nextConnectedHole = hole;
+            nextConnectedPoint = hole;
             if (powered && !hole.powered)
             {
                 hole.SetPowered(true);
-                hole.previousConnectedHole = this;
             }
+            hole.previousConnectedPoint = this;
         }
     }
 
-    public void SetPowered(bool state)
+    public override void SetPowered(bool state)
     {
         powered = state;
         if (state)
         {
             if (charge != Charge.None)
             {
-                parentRail.AddPowerSource(this);
+                if (parentRail != null) parentRail.AddPowerSource(this);
             }
             else
             {
-                parentTerminal.AddPowerSource(this);
+                if (parentTerminal != null) parentTerminal.AddPowerSource(this);
             }
         }
         else
         {
             if (charge != Charge.None)
             {
-                parentRail.RemovePowerSource(this);
+                if (parentRail != null) parentRail.RemovePowerSource(this);
             }
             else
             {
-                parentTerminal.RemovePowerSource(this);
+                if (parentTerminal != null) parentTerminal.RemovePowerSource(this);
             }
+        }
+
+        if (nextConnectedPoint != null)
+        {
+            nextConnectedPoint.SetPowered(state);
         }
     }
 
