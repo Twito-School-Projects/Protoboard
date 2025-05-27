@@ -165,19 +165,31 @@ public class WireMaker : MonoBehaviour
             return;
         }
 
-        bool isInvalidCharge =
-            (startConnectPoint.hasConstantCharge && endConnectPoint.hasConstantCharge) &&
-            startConnectPoint.charge != Charge.None &&
-            endConnectPoint.charge != Charge.None &&
-            startConnectPoint.charge != endConnectPoint.charge;
+        // bool isInvalidCharge =
+        //     (startConnectPoint.hasConstantCharge && endConnectPoint.hasConstantCharge) &&
+        //     startConnectPoint.charge != Charge.None &&
+        //     endConnectPoint.charge != Charge.None &&
+        //     startConnectPoint.charge != endConnectPoint.charge;
 
-        if (isInvalidCharge)
+        // if (isInvalidCharge)
+        // {
+        //     Debug.Log("Cannot connect positive to negative");
+        //     endConnectPoint = null;
+        //     return;
+        // }
+
+        //battery to battery should not work
+        if (startConnectPoint.type == ConnectionPointType.Battery && endConnectPoint.type == ConnectionPointType.Battery)
         {
-            Debug.Log("Cannot connect positive to negative");
-            endConnectPoint = null;
             return;
         }
 
+        //battery to terminal should not work
+        if (startConnectPoint.type == ConnectionPointType.Battery && endConnectPoint.type == ConnectionPointType.Terminal || endConnectPoint.type == ConnectionPointType.Battery && startConnectPoint.type == ConnectionPointType.Terminal)
+        {
+            return;
+        }
+        
         Debug.Log("Ending wire from hole: " + endGameObject.name);
 
         CreateWireBetweenTwoPoints(startConnectPoint.transform.position, endConnectPoint.transform.position);
@@ -200,7 +212,7 @@ public class WireMaker : MonoBehaviour
         Vector3 midPoint = (start + end) / 2;
         Quaternion rotation = Quaternion.LookRotation(end - start, Vector3.up);
 
-        midPoint.y += (numberOfWires * wirePrefab.transform.localScale.y);
+        midPoint.y += numberOfWires * wirePrefab.transform.localScale.y;
 
         var wire = Instantiate(wirePrefab, midPoint, rotation, wiresContainer);
         var wireComponent = wire.GetComponent<Wire>();

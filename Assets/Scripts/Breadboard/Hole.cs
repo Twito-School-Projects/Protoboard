@@ -18,10 +18,19 @@ public class Hole : ConnectionPoint
 
     private void Update()
     {
+        powered = parentTerminal != null ? parentTerminal.Powered :
+            parentRail != null ? parentRail.Powered : false;
+
+        if (isBeingHighlighted)
+            return;
         if (powered)
-        {
-            material.color = charge == Charge.Positive ? Color.red : Color.black;
-        }
+            {
+                Debug_SetPoweredOnColour();
+            }
+            else
+            {
+                Debug_SetPoweredOffColour();
+            }
     }
 
     public override void ConnectToHole(ConnectionPoint hole)

@@ -1,5 +1,12 @@
 ﻿using UnityEngine;
 
+public enum ConnectionPointType
+{
+    Battery,
+    Terminal,
+    Rail,
+}
+
 public class ConnectionPoint : MonoBehaviour
 {
     protected MeshRenderer MeshRenderer;
@@ -12,11 +19,15 @@ public class ConnectionPoint : MonoBehaviour
 
     public bool isTaken = false;
     public bool powered;
+    public bool isBeingHighlighted = false;
+
+
     public ConnectionPoint nextConnectedPoint;
     public ConnectionPoint previousConnectedPoint;
     public Charge charge;
 
     public Wire wire;
+    public ConnectionPointType type;
 
     public void Start()
     {
@@ -31,12 +42,16 @@ public class ConnectionPoint : MonoBehaviour
     {
         if (lockHighlight) isLockedHighlight = true;
         material.color = startColor;
+        isBeingHighlighted = true;
     }
 
     public void RemoveHighlight(bool overrideHighlight = false)
     {
         if (overrideHighlight || !isLockedHighlight)
+        {
             material.color = Color.clear;
+            isBeingHighlighted = false;
+        }
     }
 
     public virtual void ConnectToHole(ConnectionPoint hole)

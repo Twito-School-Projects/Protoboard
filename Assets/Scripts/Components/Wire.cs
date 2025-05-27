@@ -49,14 +49,15 @@ public class Wire : MonoBehaviour
             end.SetPowered(false);
         }
 
-        start.wire = null;
-        end.wire = null;
-
         start.nextConnectedPoint = null;
         end.previousConnectedPoint = null;
 
         start.isTaken = false;
         end.isTaken = false;
+        
+        start.wire = null;
+        end.wire = null;
+
     }
 
     public void OnDragStart()

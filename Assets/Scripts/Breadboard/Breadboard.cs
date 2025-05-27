@@ -21,6 +21,16 @@ public class Breadboard : ElectronicComponent
     private new void Update()
     {
         base.Update();
+
+        foreach (var t in terminals)
+        {
+            t.Value.Update();
+        }
+
+        foreach (var r in rails)
+        {
+            r.Value.Update();
+        }
     }
 
     private void SetTerminals()
@@ -53,6 +63,7 @@ public class Breadboard : ElectronicComponent
             hole.rowChar = row;
             hole.column = column;
             hole.charge = Charge.None;
+            hole.type = ConnectionPointType.Terminal;
 
             int indexOfTerminal = hole.row <= 5 ? column : column + numberOfColumns;
 
@@ -100,7 +111,8 @@ public class Breadboard : ElectronicComponent
             hole.rowChar = rowPosition;
             hole.column = column;
             hole.charge = charge == '+' ? Charge.Positive : Charge.Negative;
-
+            hole.type = ConnectionPointType.Rail;
+            
             int indexOfRail;
 
             if (rowPosition == 'L')

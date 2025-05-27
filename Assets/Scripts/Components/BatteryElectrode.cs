@@ -5,6 +5,7 @@
         base.Start();
         powered = true;
         hasConstantCharge = true;
+        type = ConnectionPointType.Battery;
     }
 
     public override void ConnectToHole(ConnectionPoint hole)
