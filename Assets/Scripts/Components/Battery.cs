@@ -1,11 +1,14 @@
 using UnityEngine;
 
+/*
+ * new idea, if there is a battery, there cannot be an ardunio vice versa.
+ * When dragging the battery onto the mat, it will autoconnect to save me the headache
+ *
+ *
+ */
 public class Battery : ElectronicComponent
 {
-    [HideInInspector]
     public BatteryElectrode positiveElectrode;
-
-    [HideInInspector]
     public BatteryElectrode negativeElectrode;
 
     public float voltage = 1.5f;
@@ -14,11 +17,37 @@ public class Battery : ElectronicComponent
     {
         base.Start();
 
+        if (ComponentTracker.Instance.battery != null)
+        {
+            Destroy(gameObject);
+        }
+
+        ComponentTracker.Instance.battery = this;
+
         isUnidirectional = false;
         var electrodes = transform.GetComponentsInChildren<BatteryElectrode>();
 
         positiveElectrode = electrodes[0];
         negativeElectrode = electrodes[1];
+
+        var breadboard = ComponentTracker.Instance.breadboard;
+        var startHole = breadboard.rails[3].holes[0];
+        var endHole = breadboard.rails[3].holes[breadboard.rails[3].holes.Count - 1];
+
+        if (breadboard.rails.Count == 0)
+        {
+            Debug.Log("Something is wrong");
+        }
+
+        if (Vector3.Distance(startHole.transform.position, positiveElectrode.transform.position) < Vector3.Distance(endHole.transform.position, positiveElectrode.transform.position))
+        {
+            Debug.Log("Creating wire from the left");
+            WireMaker.Instance.CreateWireBetweenTwoPoints(positiveElectrode, startHole);
+        } else if (Vector3.Distance(startHole.transform.position, positiveElectrode.transform.position) > Vector3.Distance(endHole.transform.position, positiveElectrode.transform.position))
+        {
+            Debug.Log("Creating wire from the left");
+            WireMaker.Instance.CreateWireBetweenTwoPoints(positiveElectrode, endHole);
+        }
     }
 
     // Update is called once per frame

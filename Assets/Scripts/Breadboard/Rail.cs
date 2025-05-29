@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 
 public enum Charge
 { Positive, Negative, None }

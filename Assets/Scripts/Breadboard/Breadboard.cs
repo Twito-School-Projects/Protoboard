@@ -7,14 +7,26 @@ public class Breadboard : ElectronicComponent
 {
     public Dictionary<int, Terminal> terminals = new Dictionary<int, Terminal>();
     public Dictionary<int, Rail> rails = new Dictionary<int, Rail>();
+    public CircuitTree circuitTree = new CircuitTree(null);
 
     public int numberOfColumns = 30;
 
-    public new void Start()
+    private void Awake()
     {
-        base.Start();
+        if (ComponentTracker.Instance.breadboard != null)
+        {
+            Destroy(gameObject);
+        }
+
+        ComponentTracker.Instance.breadboard = this;
+
         SetTerminals();
         SetRails();
+    }
+
+    public new void Start()
+    {
+        base.Start();   
     }
 
     // Update is called once per frame

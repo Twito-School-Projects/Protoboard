@@ -15,6 +15,7 @@ public class BreadboardSection
             hole.powered = Powered;
         }
     }
+    
     public void RemovePowerSource(Hole holeToRemove)
     {
         powerSources.Remove(holeToRemove);
