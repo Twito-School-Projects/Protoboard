@@ -1,50 +1,28 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class WireMaker : MonoBehaviour
+public class WireMaker : Singleton<WireMaker>
 {
-    public static WireMaker Instance { get; private set; }
-
     public Battery battery;
     public Breadboard breadboard;
 
-    [SerializeField]
-    private InputActionAsset inputActions;
+    [SerializeField] private InputActionAsset inputActions;
 
     private InputAction mouseClick;
 
-    [SerializeField]
-    private GameObject wirePrefab;
+    [SerializeField] private GameObject wirePrefab;
 
     private Camera mainCamera;
 
-    [SerializeField]
-    private bool isMakingWire = false;
+    [SerializeField] private bool isMakingWire = false;
 
-    [SerializeField]
-    private ConnectionPoint startConnectPoint = null;
+    [SerializeField] private ConnectionPoint startConnectionPoint = null;
+    [SerializeField] private ConnectionPoint endConnectionPoint = null;
+    [SerializeField] private ConnectionPoint highlightedConnectPoint;
 
-    [SerializeField]
-    private ConnectionPoint endConnectPoint = null;
-
-    [SerializeField]
-    private ConnectionPoint highlightedConnectPoint;
-
-    [SerializeField]
-    private Transform wiresContainer;
+    [SerializeField] private Transform wiresContainer;
 
     private int numberOfWires = 0;
-
-    private void Awake()
-    {
-        if (Instance != null && Instance != this)
-        {
-            Destroy(this);
-            return;
-        }
-
-        Instance = this;
-    }
 
     private void OnEnable()
     {
@@ -111,9 +89,9 @@ public class WireMaker : MonoBehaviour
             if (hit.collider != null && hit.collider.gameObject.CompareTag("ConnectionPoint"))
             {
                 if (!isMakingWire)
-                    StartWireCreator(hit.collider.gameObject, startConnectPoint);
+                    StartWireCreator(hit.collider.gameObject, startConnectionPoint);
                 else
-                    EndWireCreator(hit.collider.gameObject, endConnectPoint);
+                    EndWireCreator(hit.collider.gameObject, endConnectionPoint);
             }
             else if (hit.collider != null && hit.collider.gameObject.CompareTag("Wire"))
             {
@@ -124,36 +102,36 @@ public class WireMaker : MonoBehaviour
         }
     }
 
-    private void StartWireCreator(GameObject startGameObject, ConnectionPoint startConnectPoint)
+    private void StartWireCreator(GameObject startGameObject, ConnectionPoint startConnectionPoint)
     {
         if (isMakingWire)
             return;
 
         //If we're clicking the same hole
-        if (startConnectPoint != null && startGameObject.name == startConnectPoint.gameObject.name)
+        if (startConnectionPoint != null && startGameObject.name == startConnectionPoint.gameObject.name)
         {
-            startConnectPoint.RemoveHighlight(true);
-            startConnectPoint = null;
+            startConnectionPoint.RemoveHighlight(true);
+            startConnectionPoint = null;
             Debug.Log("Cancelled wire creation, clicked the same hole.");
             isMakingWire = false;
             return;
         }
 
-        startGameObject.TryGetComponent(out startConnectPoint);
+        startGameObject.TryGetComponent(out startConnectionPoint);
 
-        if (startConnectPoint.isTaken)
+        if (startConnectionPoint.isTaken)
         {
-            startConnectPoint.RemoveHighlight(true);
-            startConnectPoint = null;
+            startConnectionPoint.RemoveHighlight(true);
+            startConnectionPoint = null;
             isMakingWire = false;
             Debug.Log("This hole is already taken, cancelling wire creation.");
             return;
         }
 
         isMakingWire = true;
-        startConnectPoint.Highlight(true);
+        startConnectionPoint.Highlight(true);
 
-        this.startConnectPoint = startConnectPoint;
+        this.startConnectionPoint = startConnectionPoint;
 
         Debug.Log("Creating wire from hole: " + startGameObject.name);
     }
@@ -164,18 +142,18 @@ public class WireMaker : MonoBehaviour
             return;
 
         //If the end hole is the same as the start hole
-        if (endGameObject.name == startConnectPoint.gameObject.name)
+        if (endGameObject.name == startConnectionPoint.gameObject.name)
         {
             Debug.Log("Clicked the same hole, cancelling wire creation.");
             return;
         }
 
-        endGameObject.TryGetComponent(out endConnectPoint);
+        endGameObject.TryGetComponent(out this.endConnectionPoint);
 
-        if (endConnectPoint.isTaken)
+        if (this.endConnectionPoint.isTaken)
         {
             Debug.Log("This hole is already taken, choose another.");
-            endConnectPoint = null;
+            this.endConnectionPoint = null;
             return;
         }
 
@@ -193,49 +171,46 @@ public class WireMaker : MonoBehaviour
         // }
 
         //battery to battery should not work
-        if (startConnectPoint.type == ConnectionPointType.Battery && endConnectPoint.type == ConnectionPointType.Battery)
+        if (startConnectionPoint.type == ConnectionPointType.Battery && this.endConnectionPoint.type == ConnectionPointType.Battery)
         {
             return;
         }
 
         //battery to terminal should not work
-        if (startConnectPoint.type == ConnectionPointType.Battery && endConnectPoint.type == ConnectionPointType.Terminal || endConnectPoint.type == ConnectionPointType.Battery && startConnectPoint.type == ConnectionPointType.Terminal)
+        if (startConnectionPoint.type == ConnectionPointType.Battery && this.endConnectionPoint.type == ConnectionPointType.Terminal || this.endConnectionPoint.type == ConnectionPointType.Battery && startConnectionPoint.type == ConnectionPointType.Terminal)
         {
             return;
         }
         
         Debug.Log("Ending wire from hole: " + endGameObject.name);
 
-        this.endConnectPoint = endConnectionPoint;
-        Wire wireComponent = CreateWireBetweenTwoPoints(startConnectPoint, endConnectPoint);
+        this.endConnectionPoint = endConnectionPoint;
+        Wire wireComponent = CreateWireBetweenTwoPoints(startConnectionPoint, this.endConnectionPoint);
 
         //positive electrode
-        if (startConnectPoint.type == ConnectionPointType.Battery && startConnectPoint.charge == Charge.Positive)
+        if (startConnectionPoint.type == ConnectionPointType.Battery && startConnectionPoint.charge == Charge.Positive)
         {
-            if (endConnectPoint.type == ConnectionPointType.Rail)
+            if (this.endConnectionPoint.type == ConnectionPointType.Rail)
             {
-                var connectionPoint = (Hole)endConnectPoint;
-                if (connectionPoint.parentBreadboard.circuitTree.Root == null)
+                var connectionPoint = (Hole)this.endConnectionPoint;
+                if (connectionPoint.parentBreadboard.CircuitTree.Root == null)
                 {
                     //this positive rail is now the root rail
-                    connectionPoint.parentBreadboard.circuitTree.Root = new CircuitNode(startConnectPoint);
+                    connectionPoint.parentBreadboard.CircuitTree.Root = new CircuitNode(startConnectionPoint);
                 }
             }
         }
         
-
-        
-
-        startConnectPoint = null;
-        endConnectPoint = null;
+        startConnectionPoint = null;
+        this.endConnectionPoint = null;
         isMakingWire = false;
         numberOfWires++;
     }
 
-    public Wire CreateWireBetweenTwoPoints(ConnectionPoint startConnectionPoint, ConnectionPoint endConnectionPoint)
+    public Wire CreateWireBetweenTwoPoints(ConnectionPoint source, ConnectionPoint target)
     {
-        Vector3 start = startConnectionPoint.transform.position;
-        Vector3 end = endConnectionPoint.transform.position;
+        Vector3 start = source.transform.position;
+        Vector3 end = target.transform.position;
 
         float distance = Vector3.Distance(start, end);
         Vector3 midPoint = (start + end) / 2;
@@ -252,21 +227,27 @@ public class WireMaker : MonoBehaviour
             distance
         );
 
-        wireComponent.start = startConnectionPoint;
-        wireComponent.end = endConnectionPoint;
+        wireComponent.start = source;
+        wireComponent.end = target;
         wireComponent.ChangeToRandomColour();
 
-        startConnectionPoint.wire = wireComponent;
-        endConnectionPoint.wire = wireComponent;
+        source.wire = wireComponent;
+        target.wire = wireComponent;
 
-        startConnectionPoint.ConnectToHole(endConnectionPoint);
+        source.ConnectToHole(target);
+
+        var breadboard = ComponentTracker.Instance.breadboard;
+        if (!breadboard.CircuitTree.IsEmpty)
+        {
+            breadboard.CircuitTree.DepthFirstSearch(breadboard.CircuitTree.Root, source);
+        }
 
         //cleanup
-        startConnectionPoint.RemoveHighlight(true);
-        endConnectionPoint.RemoveHighlight(true);
+        source.RemoveHighlight(true);
+        target.RemoveHighlight(true);
 
-        startConnectionPoint.isTaken = true;
-        endConnectionPoint.isTaken = true;
+        source.isTaken = true;
+        target.isTaken = true;
 
         return wireComponent;
     }

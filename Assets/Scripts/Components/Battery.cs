@@ -31,24 +31,46 @@ public class Battery : ElectronicComponent
         negativeElectrode = electrodes[1];
 
         var breadboard = ComponentTracker.Instance.breadboard;
-        var startHole = breadboard.rails[3].holes[0];
-        var endHole = breadboard.rails[3].holes[breadboard.rails[3].holes.Count - 1];
+        var startPositiveHole = breadboard.rails[3].holes[0];
+        var endPositiveHole = breadboard.rails[3].holes[24];
+
+        var startNegativeHole = breadboard.rails[2].holes[0];
+        var endNegativeHole = breadboard.rails[2].holes[24];
 
         if (breadboard.rails.Count == 0)
         {
             Debug.Log("Something is wrong");
         }
 
-        if (Vector3.Distance(startHole.transform.position, positiveElectrode.transform.position) < Vector3.Distance(endHole.transform.position, positiveElectrode.transform.position))
+        var positiveHole = ConnectElectrodesToBreadboard(startPositiveHole, endPositiveHole, positiveElectrode);
+        var negativeHole = ConnectElectrodesToBreadboard(startNegativeHole, endNegativeHole, negativeElectrode);
+
+        breadboard.SetRootCircuitNode(positiveElectrode, ((Hole)positiveHole).parentRail);
+        var foundNode = breadboard.CircuitTree.DepthFirstSearch(breadboard.CircuitTree.Root, positiveHole);
+
+        if (foundNode != null)
         {
-            Debug.Log("Creating wire from the left");
-            WireMaker.Instance.CreateWireBetweenTwoPoints(positiveElectrode, startHole);
-        } else if (Vector3.Distance(startHole.transform.position, positiveElectrode.transform.position) > Vector3.Distance(endHole.transform.position, positiveElectrode.transform.position))
-        {
-            Debug.Log("Creating wire from the left");
-            WireMaker.Instance.CreateWireBetweenTwoPoints(positiveElectrode, endHole);
+            Debug.Log(foundNode.Data.name);
         }
     }
+
+    private ConnectionPoint ConnectElectrodesToBreadboard(Hole startHole, Hole endHole, BatteryElectrode electrode)
+    {
+        if (Vector3.Distance(startHole.transform.position, electrode.transform.position) < Vector3.Distance(endHole.transform.position, electrode.transform.position))
+        {
+            Debug.Log("Creating wire from the left");
+            WireMaker.Instance.CreateWireBetweenTwoPoints(electrode, startHole);
+            return startHole;
+        }
+        else
+        {
+            Debug.Log("Creating wire from the right");
+            WireMaker.Instance.CreateWireBetweenTwoPoints(electrode, endHole);
+            return endHole;
+        }
+    }
+
+
 
     // Update is called once per frame
     private new void Update()

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -7,11 +8,11 @@ public class Breadboard : ElectronicComponent
 {
     public Dictionary<int, Terminal> terminals = new Dictionary<int, Terminal>();
     public Dictionary<int, Rail> rails = new Dictionary<int, Rail>();
-    public CircuitTree circuitTree = new CircuitTree(null);
+    public CircuitTree CircuitTree = new CircuitTree(null);
 
     public int numberOfColumns = 30;
 
-    private void Awake()
+    private void OnEnable()
     {
         if (ComponentTracker.Instance.breadboard != null)
         {
@@ -22,6 +23,26 @@ public class Breadboard : ElectronicComponent
 
         SetTerminals();
         SetRails();
+    }
+
+    public void SetRootCircuitNode(BatteryElectrode root, Rail rail)
+    {
+        CircuitTree.Root = new CircuitNode(root);
+        CircuitTree.AddChildNodesToRoot(rail.holes.Cast<ConnectionPoint>().ToList());
+    }
+
+    public void AddHoleToTree(ConnectionPoint source, ConnectionPoint target)
+    {
+        CircuitNode foundNode = CircuitTree.DepthFirstSearch(CircuitTree.Root, source);
+        if (foundNode != null)
+        {
+            Debug.Log($"Node found of name {foundNode.Data.name}");
+        }
+    }
+
+    public void Propogate(Hole hole)
+    {
+
     }
 
     public new void Start()

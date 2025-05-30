@@ -3,6 +3,7 @@
     private new void Start()
     {
         base.Start();
+
         powered = true;
         hasConstantCharge = true;
         type = ConnectionPointType.Battery;

@@ -2,7 +2,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class DragAndDrop : MonoBehaviour
+public class DragAndDrop : Singleton<DragAndDrop>
 {
     [SerializeField]
     private InputAction mouseClick;
@@ -11,7 +11,7 @@ public class DragAndDrop : MonoBehaviour
     private float mouseDragSpeed;
 
     private Camera mainCamera;
-    private Vector3 velocity;
+    private Vector3 velocity = Vector3.zero;
 
     private void OnEnable()
     {

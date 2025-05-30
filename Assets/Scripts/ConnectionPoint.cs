@@ -9,8 +9,8 @@ public enum ConnectionPointType
 
 public class ConnectionPoint : MonoBehaviour
 {
-    protected MeshRenderer MeshRenderer;
-    protected Material material;
+    public MeshRenderer MeshRenderer;
+    public Material material;
     protected Color startColor;
     protected bool isLockedHighlight = false;
 
@@ -49,7 +49,10 @@ public class ConnectionPoint : MonoBehaviour
     {
         if (overrideHighlight || !isLockedHighlight)
         {
-            material.color = Color.clear;
+            if (material != null && material.color != Color.clear)
+            {
+                material.color = Color.clear;
+            }
             isBeingHighlighted = false;
         }
     }
