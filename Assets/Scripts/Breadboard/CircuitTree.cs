@@ -37,6 +37,21 @@ public class CircuitTree
         Root.Children.AddRange(nodes.Select(x => new CircuitNode(x)));
     }
 
+    public void AddChildToNode(ConnectionPoint parent, ConnectionPoint child)
+    {
+        CircuitNode node = DepthFirstSearch(Root, parent);
+        if (node != null)
+        {
+            if (!parent.powered)
+            {
+                Debug.Log("Not adding to the tree because the parent is not powered");
+                return;
+            }
+
+            node.AddChildNode(new CircuitNode(child));
+        }
+    }
+
     public CircuitNode DepthFirstSearch(CircuitNode node, ConnectionPoint target)
     {
         if (node == null || target == null)
@@ -66,6 +81,45 @@ public class CircuitTree
         {
             RemoveChildren(child);
             node.Children.Remove(child);
+        }
+    }
+
+    private List<List<CircuitNode>> getPaths0(CircuitNode pos)
+    {
+        List<List<CircuitNode>> retLists = new();
+
+        if (pos.Children.Count == 0)
+        {
+            List<CircuitNode> leafList = new();
+            leafList.Add(pos);
+            retLists.Add(leafList);
+        }
+        else
+        {
+            foreach (var node in pos.Children)
+            {
+                List<List<CircuitNode>> nodeLists = getPaths0(node);
+
+                foreach (List<CircuitNode> nodeList in nodeLists)
+                {
+                    nodeList.Add(pos);
+                    retLists.Add(nodeList);
+                }
+            }
+        }
+
+        return retLists;
+    }
+
+    public List<List<CircuitNode>> getPaths(CircuitNode head)
+    {
+        if (head == null)
+        {
+            return new();
+        }
+        else
+        {
+            return getPaths0(head);
         }
     }
 }

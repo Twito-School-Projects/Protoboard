@@ -1,5 +1,8 @@
+using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using static Unity.VisualScripting.Member;
+using static UnityEngine.GraphicsBuffer;
 
 public class WireMaker : Singleton<WireMaker>
 {
@@ -102,23 +105,24 @@ public class WireMaker : Singleton<WireMaker>
         }
     }
 
-    private void StartWireCreator(GameObject startGameObject, ConnectionPoint startConnectionPoint)
+    private void StartWireCreator(GameObject clickedGameObject, ConnectionPoint sPoint)
     {
         if (isMakingWire)
             return;
-
+       
         //If we're clicking the same hole
-        if (startConnectionPoint != null && startGameObject.name == startConnectionPoint.gameObject.name)
+        if (sPoint != null && clickedGameObject.name == sPoint.gameObject.name)
         {
-            startConnectionPoint.RemoveHighlight(true);
-            startConnectionPoint = null;
-            Debug.Log("Cancelled wire creation, clicked the same hole.");
-            isMakingWire = false;
+            sPoint.RemoveHighlight(true);
+            //sPoint = null;
+            Debug.Log("Clicked the same hole.");
+            //isMakingWire = false;
             return;
         }
 
-        startGameObject.TryGetComponent(out startConnectionPoint);
+        clickedGameObject.TryGetComponent(out startConnectionPoint);
 
+        //if the point already has a wire
         if (startConnectionPoint.isTaken)
         {
             startConnectionPoint.RemoveHighlight(true);
@@ -128,71 +132,123 @@ public class WireMaker : Singleton<WireMaker>
             return;
         }
 
+
         isMakingWire = true;
         startConnectionPoint.Highlight(true);
 
-        this.startConnectionPoint = startConnectionPoint;
-
-        Debug.Log("Creating wire from hole: " + startGameObject.name);
+        Debug.Log("Creating wire from hole: " + clickedGameObject.name);
     }
 
-    private void EndWireCreator(GameObject endGameObject, ConnectionPoint endConnectionPoint)
+    private void EndWireCreator(GameObject clickedGameObject, ConnectionPoint ePoint)
     {
         if (!isMakingWire)
             return;
 
         //If the end hole is the same as the start hole
-        if (endGameObject.name == startConnectionPoint.gameObject.name)
+        if (clickedGameObject.name == startConnectionPoint.gameObject.name)
         {
-            Debug.Log("Clicked the same hole, cancelling wire creation.");
+            Debug.Log("Tried to use the start point as the end point");
             return;
         }
 
-        endGameObject.TryGetComponent(out this.endConnectionPoint);
+        clickedGameObject.TryGetComponent(out endConnectionPoint);
 
-        if (this.endConnectionPoint.isTaken)
+        if (endConnectionPoint.isTaken)
         {
             Debug.Log("This hole is already taken, choose another.");
-            this.endConnectionPoint = null;
+            endConnectionPoint = null;
             return;
         }
 
-        // bool isInvalidCharge =
-        //     (startConnectPoint.hasConstantCharge && endConnectPoint.hasConstantCharge) &&
-        //     startConnectPoint.charge != Charge.None &&
-        //     endConnectPoint.charge != Charge.None &&
-        //     startConnectPoint.charge != endConnectPoint.charge;
 
-        // if (isInvalidCharge)
-        // {
-        //     Debug.Log("Cannot connect positive to negative");
-        //     endConnectPoint = null;
-        //     return;
-        // }
+        /*
+           Make a restriction that one of points has to be powered to be able to put a wire on it.
+           */
+
+        if (!startConnectionPoint.powered && !endConnectionPoint.powered)
+        {
+            Debug.Log("The starting point must be powered, cancelling wire creation");
+            startConnectionPoint = null;
+            endConnectionPoint = null;
+            return;
+        }
 
         //battery to battery should not work
-        if (startConnectionPoint.type == ConnectionPointType.Battery && this.endConnectionPoint.type == ConnectionPointType.Battery)
+        if (startConnectionPoint.type == ConnectionPointType.Battery && endConnectionPoint.type == ConnectionPointType.Battery)
         {
             return;
         }
 
         //battery to terminal should not work
-        if (startConnectionPoint.type == ConnectionPointType.Battery && this.endConnectionPoint.type == ConnectionPointType.Terminal || this.endConnectionPoint.type == ConnectionPointType.Battery && startConnectionPoint.type == ConnectionPointType.Terminal)
+        if (startConnectionPoint.type == ConnectionPointType.Battery && endConnectionPoint.type == ConnectionPointType.Terminal || endConnectionPoint.type == ConnectionPointType.Battery && startConnectionPoint.type == ConnectionPointType.Terminal)
         {
             return;
         }
         
-        Debug.Log("Ending wire from hole: " + endGameObject.name);
+        Debug.Log("Ending wire from hole: " + clickedGameObject.name);
 
-        this.endConnectionPoint = endConnectionPoint;
-        Wire wireComponent = CreateWireBetweenTwoPoints(startConnectionPoint, this.endConnectionPoint);
+        var breadboard = ComponentTracker.Instance.breadboard;
+        if (!breadboard.CircuitTree.IsEmpty)
+        {
+            ConnectionPoint parentPoint;
+            ConnectionPoint childPoint;
+            if (startConnectionPoint.powered)
+            {
+                parentPoint = startConnectionPoint;
+                childPoint = endConnectionPoint;
+            }
+            else if (endConnectionPoint.powered)
+            {
+                parentPoint = endConnectionPoint;
+                childPoint = startConnectionPoint;
+            }
+            else
+            {
+                return;
+            }
+
+            var parentNode = breadboard.CircuitTree.DepthFirstSearch(breadboard.CircuitTree.Root, parentPoint);
+            var childNode = new CircuitNode(endConnectionPoint);
+            parentNode.AddChildNode(childNode);
+
+            //add all the rest of the terminal nodes to the tree
+
+            if (childPoint.type == ConnectionPointType.Terminal) {
+                Hole childHole = childPoint as Hole;
+                foreach (var child in childHole.parentTerminal.holes)
+                {
+                    var cNode = new CircuitNode(child);
+                    parentNode.AddChildNode(cNode);
+                }
+            }
+
+            if (childPoint.type == ConnectionPointType.Rail && childPoint.charge == Charge.Negative)
+            {
+                Debug.Log("Complete circuit" % Colorize.Green);
+            }
+            var paths = breadboard.CircuitTree.getPaths(breadboard.CircuitTree.Root);
+            paths.Reverse();
+
+            foreach (var path in paths)
+            {
+                string a = "";
+                foreach (var item in path)
+                {
+                    a += item.Data.name + " -> ";
+                }
+                //Debug.Log(a);
+            }
+            
+        }
+
+        Wire wireComponent = CreateWireBetweenTwoPoints(startConnectionPoint, endConnectionPoint);
 
         //positive electrode
         if (startConnectionPoint.type == ConnectionPointType.Battery && startConnectionPoint.charge == Charge.Positive)
         {
-            if (this.endConnectionPoint.type == ConnectionPointType.Rail)
+            if (endConnectionPoint.type == ConnectionPointType.Rail)
             {
-                var connectionPoint = (Hole)this.endConnectionPoint;
+                var connectionPoint = (Hole)endConnectionPoint;
                 if (connectionPoint.parentBreadboard.CircuitTree.Root == null)
                 {
                     //this positive rail is now the root rail
@@ -202,7 +258,7 @@ public class WireMaker : Singleton<WireMaker>
         }
         
         startConnectionPoint = null;
-        this.endConnectionPoint = null;
+        endConnectionPoint = null;
         isMakingWire = false;
         numberOfWires++;
     }
@@ -236,11 +292,7 @@ public class WireMaker : Singleton<WireMaker>
 
         source.ConnectToHole(target);
 
-        var breadboard = ComponentTracker.Instance.breadboard;
-        if (!breadboard.CircuitTree.IsEmpty)
-        {
-            breadboard.CircuitTree.DepthFirstSearch(breadboard.CircuitTree.Root, source);
-        }
+        
 
         //cleanup
         source.RemoveHighlight(true);
