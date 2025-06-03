@@ -10,6 +10,12 @@ public class Hole : ConnectionPoint
     public Terminal parentTerminal;
     public Rail parentRail;
 
+
+    public bool IsNegativeRail => parentRail != null && charge == Charge.Negative;
+    public bool IsPositiveRail => parentRail != null && charge == Charge.Positive;
+    public bool IsTerminal => parentTerminal != null && charge == Charge.None;
+
+
     private new void Start()
     {
         base.Start();

@@ -9,15 +9,28 @@ public class CircuitNode
 {
     public ConnectionPoint Data { get; set; }
     public List<CircuitNode> Children { get; } = new List<CircuitNode>();
+    public CircuitNode Parent { get; set; }
 
     public CircuitNode(ConnectionPoint data)
     {
         Data = data;
     }
 
+    public CircuitNode(ConnectionPoint data, CircuitNode parent)
+    {
+        Data = data;
+        Parent = parent;
+    }
+
     public void AddChildNode(CircuitNode childNode)
     {
         Children.Add(childNode);
+        childNode.Data.SetPowered(Data.powered);
+    }
+
+    public void RemoveChildNode(CircuitNode childNode)
+    {
+        Children.Remove(childNode);
         childNode.Data.SetPowered(Data.powered);
     }
 }
@@ -27,6 +40,7 @@ public class CircuitTree
 {
     public CircuitNode Root { get; set; }
     public bool IsEmpty => Root == null || Root.Children.Count == 0;
+
     public CircuitTree(ConnectionPoint data)
     {
         Root = new CircuitNode(data);
@@ -34,7 +48,13 @@ public class CircuitTree
 
     public void AddChildNodesToRoot(List<ConnectionPoint> nodes)
     {
-        Root.Children.AddRange(nodes.Select(x => new CircuitNode(x)));
+        if (Root != null)
+        {
+            Root.Children.AddRange(nodes.Select(x => new CircuitNode(x, Root)));
+        } else
+        {
+            Debug.Log("Root node does not exist" % Colorize.Red);
+        }
     }
 
     public void AddChildToNode(ConnectionPoint parent, ConnectionPoint child)
@@ -48,7 +68,7 @@ public class CircuitTree
                 return;
             }
 
-            node.AddChildNode(new CircuitNode(child));
+            node.AddChildNode(new CircuitNode(child, node));
         }
     }
 
@@ -80,6 +100,7 @@ public class CircuitTree
         foreach (var child in node.Children)
         {
             RemoveChildren(child);
+            ComponentTracker.Instance.breadboard.PropogatePower(node);
             node.Children.Remove(child);
         }
     }

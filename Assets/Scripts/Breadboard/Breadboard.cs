@@ -10,6 +10,8 @@ public class Breadboard : ElectronicComponent
     public Dictionary<int, Rail> rails = new Dictionary<int, Rail>();
     public CircuitTree CircuitTree = new CircuitTree(null);
 
+    public List<CircuitTree> DisconnectedCircuitTrees = new List<CircuitTree>();
+
     public int numberOfColumns = 30;
 
     private void OnEnable()
@@ -40,9 +42,18 @@ public class Breadboard : ElectronicComponent
         }
     }
 
-    public void Propogate(Hole hole)
+    public void PropogatePower(CircuitNode node)
     {
+        node.Children.ForEach(c =>
+        {
+            var child = c.Data as Hole; 
+            if (child.IsTerminal || child.IsNegativeRail)
+            {
+                child.SetPowered(node.Data.powered);
+            }
 
+            PropogatePower(c);
+        });
     }
 
     public new void Start()

@@ -168,8 +168,14 @@ public class WireMaker : Singleton<WireMaker>
         if (!startConnectionPoint.powered && !endConnectionPoint.powered)
         {
             Debug.Log("The starting point must be powered, cancelling wire creation");
+            startConnectionPoint.RemoveHighlight(true);
+            endConnectionPoint.RemoveHighlight(true);
+
             startConnectionPoint = null;
             endConnectionPoint = null;
+            isMakingWire = false;
+
+           
             return;
         }
 
@@ -188,10 +194,10 @@ public class WireMaker : Singleton<WireMaker>
         Debug.Log("Ending wire from hole: " + clickedGameObject.name);
 
         var breadboard = ComponentTracker.Instance.breadboard;
+        ConnectionPoint parentPoint = startConnectionPoint;
+        ConnectionPoint childPoint = endConnectionPoint;
         if (!breadboard.CircuitTree.IsEmpty)
         {
-            ConnectionPoint parentPoint;
-            ConnectionPoint childPoint;
             if (startConnectionPoint.powered)
             {
                 parentPoint = startConnectionPoint;
@@ -208,24 +214,38 @@ public class WireMaker : Singleton<WireMaker>
             }
 
             var parentNode = breadboard.CircuitTree.DepthFirstSearch(breadboard.CircuitTree.Root, parentPoint);
-            var childNode = new CircuitNode(endConnectionPoint);
-            parentNode.AddChildNode(childNode);
-
-            //add all the rest of the terminal nodes to the tree
-
-            if (childPoint.type == ConnectionPointType.Terminal) {
-                Hole childHole = childPoint as Hole;
-                foreach (var child in childHole.parentTerminal.holes)
-                {
-                    var cNode = new CircuitNode(child);
-                    parentNode.AddChildNode(cNode);
-                }
-            }
-
-            if (childPoint.type == ConnectionPointType.Rail && childPoint.charge == Charge.Negative)
+            var possibleDisconnectedChildNode = breadboard.DisconnectedCircuitTrees.Find(x => x.DepthFirstSearch(x.Root, childPoint) != null);
+            
+            breadboard.PropogatePower(parentNode);
+            //if the child node is by itself
+            if (possibleDisconnectedChildNode == null)
             {
-                Debug.Log("Complete circuit" % Colorize.Green);
+                var childNode = new CircuitNode(endConnectionPoint);
+                parentNode.AddChildNode(childNode);
+
+                //add all the rest of the terminal nodes to the tree
+                if (childPoint.type == ConnectionPointType.Terminal)
+                {
+                    Hole childHole = childPoint as Hole;
+                    foreach (var child in childHole.parentTerminal.holes)
+                    {
+                        var cNode = new CircuitNode(child);
+                        parentNode.AddChildNode(cNode);
+                    }
+                }
+
+                if (childPoint.type == ConnectionPointType.Rail && childPoint.charge == Charge.Negative)
+                {
+                    Debug.Log("Complete circuit" % Colorize.Green);
+                }
+            } else //if the chilld node is its own circuit tree that was previously disconnected
+            {
+                parentNode.Children.Add(possibleDisconnectedChildNode.Root);
+                breadboard.DisconnectedCircuitTrees.Remove(possibleDisconnectedChildNode);
+
+                Debug.Log("Reconnected to power" % Colorize.Blue);
             }
+
             var paths = breadboard.CircuitTree.getPaths(breadboard.CircuitTree.Root);
             paths.Reverse();
 
@@ -241,7 +261,7 @@ public class WireMaker : Singleton<WireMaker>
             
         }
 
-        Wire wireComponent = CreateWireBetweenTwoPoints(startConnectionPoint, endConnectionPoint);
+        Wire wireComponent = CreateWireBetweenTwoPoints(parentPoint, childPoint);
 
         //positive electrode
         if (startConnectionPoint.type == ConnectionPointType.Battery && startConnectionPoint.charge == Charge.Positive)

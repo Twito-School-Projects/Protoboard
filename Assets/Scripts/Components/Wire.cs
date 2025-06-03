@@ -1,3 +1,4 @@
+using System.Linq;
 using UnityEngine;
 
 public class Wire : MonoBehaviour
@@ -44,6 +45,8 @@ public class Wire : MonoBehaviour
 
     public void Disconnect()
     {
+        var breadboard = ComponentTracker.Instance.breadboard;
+
         if (start.powered)
         {
             end.SetPowered(false);
@@ -58,6 +61,25 @@ public class Wire : MonoBehaviour
         start.wire = null;
         end.wire = null;
 
+        var startNode =  breadboard.CircuitTree.DepthFirstSearch(breadboard.CircuitTree.Root, start);
+
+        if (startNode != null)
+        {
+            //removing the child node (not deleting it)
+            var endNode = startNode.Children.First(x => x.Data == end);
+
+            if (endNode != null)
+            {
+                Debug.Log("State: " % Colorize.Gold + endNode.Data.powered);
+
+                breadboard.PropogatePower(endNode);
+                startNode.RemoveChildNode(endNode);
+                CircuitTree tree = new CircuitTree(null);
+                tree.Root = startNode;
+
+                breadboard.DisconnectedCircuitTrees.Add(tree);
+            }
+        }
     }
 
     public void OnDragStart()
