@@ -244,6 +244,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isUnidirectional: 1
   imageSprite: {fileID: 21300000, guid: 3f396af710a8bd04aa47616ea2b3bacd, type: 3}
+  collider: {fileID: 2988166456060489334}
+  renderers:
+  - {fileID: 2330301600620001776}
+  - {fileID: 6898515880235343145}
+  - {fileID: 6950595912137319198}
+  componentType: 2
+  isSelectedFromUI: 0
   anode: {fileID: 0}
   cathode: {fileID: 0}
   anodeLocation: {fileID: 0}

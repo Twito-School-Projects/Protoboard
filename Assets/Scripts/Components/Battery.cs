@@ -19,7 +19,8 @@ public class Battery : ElectronicComponent
 
         if (ComponentTracker.Instance.battery != null)
         {
-            Destroy(gameObject);
+            if (!PlaceUIObject.Instance.isPlacingObject && PlaceUIObject.Instance.currentlySelectedComponent.componentType == componentType)
+                Destroy(gameObject);
         }
 
         ComponentTracker.Instance.battery = this;
@@ -70,7 +71,18 @@ public class Battery : ElectronicComponent
         }
     }
 
+    private void OnDestroy()
+    {
+        positiveElectrode.wire.end.previousConnectedPoint = null;
+        negativeElectrode.wire.end.previousConnectedPoint = null;
 
+        positiveElectrode.wire.end.wire = null;
+        negativeElectrode.wire.end.wire = null;
+
+        Destroy(positiveElectrode.wire.gameObject);
+        Destroy(negativeElectrode.wire.gameObject);
+
+    }
 
     // Update is called once per frame
     private new void Update()

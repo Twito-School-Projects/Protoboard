@@ -11820,6 +11820,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isUnidirectional: 1
   imageSprite: {fileID: 21300000, guid: 05e622e325ef48e47af844f853588492, type: 3}
+  collider: {fileID: 7421867873847626886}
+  renderers:
+  - {fileID: 3775882490061675651}
+  componentType: 1
+  isSelectedFromUI: 0
   DisconnectedCircuitTrees: []
   numberOfColumns: 30
 --- !u!1 &50250740320053569 stripped
@@ -23830,6 +23835,11 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1.0000001, y: 0.9999999, z: 0.9999998}
   m_Center: {x: 0, y: 0.0000019073486, z: 0.00012207031}
+--- !u!23 &3775882490061675651 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: -5174520790684976238, guid: 39537d3fa65056b45b53ffd9a561ffd6, type: 3}
+  m_PrefabInstance: {fileID: 889119936904390417}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &3782412433686041775 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 4047361462032135102, guid: 39537d3fa65056b45b53ffd9a561ffd6, type: 3}

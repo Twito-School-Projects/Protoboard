@@ -23,7 +23,7 @@ public class Wire : MonoBehaviour
 
     private void Update()
     {
-        float distance = Vector3.Distance(start.transform.position, end.transform.position);
+        float distance = Vector3.Distance(start.transform.position, end.transform.position);    
 
         Vector3 midPoint = (start.transform.position + end.transform.position) / 2;
         Quaternion rotation = Quaternion.LookRotation(end.transform.position - start.transform.position, Vector3.up);

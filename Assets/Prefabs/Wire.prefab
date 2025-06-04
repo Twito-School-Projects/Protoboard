@@ -104,6 +104,7 @@ MonoBehaviour:
   end: {fileID: 0}
   meshRenderer: {fileID: 1808512844606177697}
   material: {fileID: 2100000, guid: b7f1f74a3696b9440b9c8f4e0ac4f542, type: 2}
+  boxCollider: {fileID: 0}
 --- !u!65 &6134868817745503343
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -119,7 +120,7 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3

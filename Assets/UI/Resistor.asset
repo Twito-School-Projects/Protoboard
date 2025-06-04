@@ -12,3 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4b849d4836f1a344f93ed5ee2683cffa, type: 3}
   m_Name: Resistor
   m_EditorClassIdentifier: 
+  Prefab: {fileID: 3695057290931772578, guid: 806431928608359418bd3afd69d9f1d5, type: 3}
+  SpriteIcon: {fileID: 0}
+  Name: Resistor
+  Dimensions:
+    Width: 0
+    Height: 0
