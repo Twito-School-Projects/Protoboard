@@ -4,6 +4,7 @@ public class ElectronicComponent : MonoBehaviour, IDrag
 {
     protected Rigidbody rb;
     public bool isUnidirectional = true;
+    public Sprite imageSprite;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     protected void Start()

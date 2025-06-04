@@ -100,12 +100,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5f9661477598aae418c50794fe559668, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  MeshRenderer: {fileID: 0}
+  material: {fileID: 0}
   hasConstantCharge: 0
   isTaken: 0
   powered: 1
+  isBeingHighlighted: 0
   nextConnectedPoint: {fileID: 0}
   previousConnectedPoint: {fileID: 0}
   charge: 0
+  wire: {fileID: 0}
+  type: 0
 --- !u!65 &5114412630420768079
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -227,12 +232,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5f9661477598aae418c50794fe559668, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  MeshRenderer: {fileID: 0}
+  material: {fileID: 0}
   hasConstantCharge: 0
   isTaken: 0
   powered: 1
+  isBeingHighlighted: 0
   nextConnectedPoint: {fileID: 0}
   previousConnectedPoint: {fileID: 0}
   charge: 1
+  wire: {fileID: 0}
+  type: 0
 --- !u!65 &9161204707358748220
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -373,6 +383,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isUnidirectional: 1
+  imageSprite: {fileID: 21300000, guid: e83db0caa7461be40afa2a90a610883a, type: 3}
   positiveElectrode: {fileID: 0}
   negativeElectrode: {fileID: 0}
   voltage: 1.5

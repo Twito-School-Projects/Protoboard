@@ -1,33 +1,36 @@
-using NUnit.Framework.Internal.Builders;
-using System;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class PopulateGrid : MonoBehaviour
 {
-    public GameObject prefab;
-    public int numberToCreate;
+    public GameObject itemPrefab;
+    public GameObject[] componentPrefabs;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    private void Start()
     {
-        Populate();    
+        Populate();
     }
 
     private void Populate()
     {
-        GameObject obj;
-
-        for (int i = 0; i < numberToCreate; i++)
+        for (int i = 0; i < componentPrefabs.Length; i++)
         {
-            obj = Instantiate(prefab, transform);
-            obj.GetComponent<Image>().color = UnityEngine.Random.ColorHSV();
+            GameObject obj = Instantiate(itemPrefab, transform);
+
+            var toolbarItem = obj.GetComponent<ToolbarItem>();
+            var image = obj.GetComponent<Image>();
+
+            var component = componentPrefabs[i].GetComponent<ElectronicComponent>();
+            image.sprite = component.imageSprite;
+            toolbarItem.componentPrefab = componentPrefabs[i];
+
+            //Toolbar.Instance.items.Add(toolbarItem);
         }
     }
 
     // Update is called once per frame
-    void Update()
+    private void Update()
     {
-        
     }
 }

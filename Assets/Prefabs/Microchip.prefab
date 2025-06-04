@@ -108,6 +108,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 62997640fb3c02444bb1ee6e94d96b7f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isUnidirectional: 1
+  imageSprite: {fileID: 21300000, guid: 399b9c5121c48d2489be1d4630b8e066, type: 3}
 --- !u!54 &8645196906122449861
 Rigidbody:
   m_ObjectHideFlags: 0

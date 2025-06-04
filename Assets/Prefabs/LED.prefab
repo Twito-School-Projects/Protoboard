@@ -242,6 +242,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9e0e3dff034ae7148b20de1d0e4a1b77, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isUnidirectional: 1
+  imageSprite: {fileID: 21300000, guid: 3f396af710a8bd04aa47616ea2b3bacd, type: 3}
+  anode: {fileID: 0}
+  cathode: {fileID: 0}
+  anodeLocation: {fileID: 0}
+  cathodeLocation: {fileID: 0}
 --- !u!1 &7813138393707856432
 GameObject:
   m_ObjectHideFlags: 0

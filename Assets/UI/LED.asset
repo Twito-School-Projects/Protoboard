@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4b849d4836f1a344f93ed5ee2683cffa, type: 3}
+  m_Name: LED
+  m_EditorClassIdentifier: 
+  Prefab: {fileID: 7778175707282447384, guid: d2ed2600756126f40a9c3d4236689f92, type: 3}
+  SpriteIcon: {fileID: 21300000, guid: 3f396af710a8bd04aa47616ea2b3bacd, type: 3}
+  Name: 
+  Dimensions:
+    Width: 0
+    Height: 0
