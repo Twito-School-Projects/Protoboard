@@ -18,7 +18,7 @@ public class Breadboard : ElectronicComponent
     {
         if (ComponentTracker.Instance.breadboard != null)
         {
-            if (!PlaceUIObject.Instance.isPlacingObject && PlaceUIObject.Instance.currentlySelectedComponent.componentType == componentType)
+            if (!PlaceUIObject.Instance.isPlacingObject && PlaceUIObject.Instance.currentlySelectedComponent?.componentType == componentType)
                 Destroy(gameObject);
         }
 

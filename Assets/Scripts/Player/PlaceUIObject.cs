@@ -46,6 +46,9 @@ public class PlaceUIObject : Singleton<PlaceUIObject>
     private IEnumerator FollowUpdate(GameObject clickedObject)
     {
         float initialDistance = Vector3.Distance(clickedObject.transform.position, mainCamera.transform.position);
+        clickedObject.TryGetComponent<IDrag>(out IDrag dragComponent);
+
+        dragComponent?.OnDragStart();
         while (mouseClick.ReadValue<float>() != 0)
         {
             Debug.Log("Following");
@@ -57,6 +60,7 @@ public class PlaceUIObject : Singleton<PlaceUIObject>
             clickedObject.transform.position = new Vector3(clickedObject.transform.position.x, 4, clickedObject.transform.position.z);
             yield return null;
         }
+        dragComponent?.OnDragEnd();
     }
 
     void Start()
@@ -66,7 +70,7 @@ public class PlaceUIObject : Singleton<PlaceUIObject>
 
     void Update()
     {
-        if (currentlySelectedComponent != null)
+        if (currentlySelectedComponent)
         {
             currentlySelectedComponent.isSelectedFromUI = true;
             currentlySelectedComponent.FollowMouse();
@@ -89,25 +93,22 @@ public class PlaceUIObject : Singleton<PlaceUIObject>
         var battery = ComponentTracker.Instance.battery;
 
         //cannot have multiple of each
-        if (battery != null && currentlySelectedComponent.componentType == ComponentType.Battery)
+        if (battery && currentlySelectedComponent.componentType == ComponentType.Battery)
         {
             DestroyCurrent();
             return;
         }
-        else if (breadboard != null && currentlySelectedComponent.componentType == ComponentType.Breadboard)
+        else if (breadboard && currentlySelectedComponent.componentType == ComponentType.Breadboard)
         {
             DestroyCurrent();
             return;
         }
 
-        if (currentlySelectedComponent != null)
-        {
-            Coroutine = FollowUpdate(currentlySelectedObject);
+        if (!currentlySelectedComponent) return;
+        Coroutine = FollowUpdate(currentlySelectedObject);
 
-            StartCoroutine(Coroutine);
+        StartCoroutine(Coroutine);
         currentlySelectedComponent.DisableFunctionality();
-            isPlacingObject = true;
-
-        }
+        isPlacingObject = true;
     }
 }

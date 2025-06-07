@@ -24,8 +24,9 @@ public class Toolbar : Singleton<Toolbar>
         {  
             var child = ToolbarVisuals[i];
             var data = child.dataSource as ToolbarItemObject;
-
-            child.style.backgroundImage = new StyleBackground(data.SpriteIcon);
+            
+            child.Add(new Image());
+            child.style.backgroundImage = new StyleBackground(data?.SpriteIcon);
             child.tooltip = ToolbarItems[i].Name;
             child.RegisterCallback<ClickEvent>(OnClickIcon);
         }
@@ -60,7 +61,7 @@ public class Toolbar : Singleton<Toolbar>
         var targetVisual = evt.target as VisualElement;
         var data =  targetVisual.dataSource as ToolbarItemObject;
 
-        if (data == null)
+        if (!data)
         {
             Debug.Log("No icon information found");
             return;

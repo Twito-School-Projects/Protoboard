@@ -96,7 +96,7 @@ public class Battery : ElectronicComponent
         rb.useGravity = false;
         rb.linearVelocity = Vector3.zero;
 
-        if (positiveElectrode.wire != null) positiveElectrode.wire.OnDragStart();
+        positiveElectrode.wire?.OnDragStart();
         if (negativeElectrode.wire != null) negativeElectrode.wire.OnDragStart();
     }
 
