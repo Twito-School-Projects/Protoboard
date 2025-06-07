@@ -22,7 +22,7 @@ public class Battery : ElectronicComponent
             if (!PlaceUIObject.Instance.isPlacingObject && PlaceUIObject.Instance.currentlySelectedComponent.componentType == componentType)
                 Destroy(gameObject);
         }
-
+        
         ComponentTracker.Instance.battery = this;
 
         isUnidirectional = false;

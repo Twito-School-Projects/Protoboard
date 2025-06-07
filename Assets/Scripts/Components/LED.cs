@@ -17,4 +17,15 @@ public class LED : ElectronicComponent
     {
         base.Update();
     }
+    
+    public override void OnDragStart()
+    {
+        rb.useGravity = false;
+        rb.linearVelocity = Vector3.zero;
+    }
+
+    public override void OnDragEnd()
+    {
+        rb.useGravity = true;
+    }
 }

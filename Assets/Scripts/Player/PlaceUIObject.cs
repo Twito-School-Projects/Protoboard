@@ -14,7 +14,6 @@ public class PlaceUIObject : Singleton<PlaceUIObject>
     private Vector3 velocity = Vector3.zero;
     private Camera mainCamera;
 
-    private IEnumerator Coroutine;
     private void OnEnable()
     {
         mouseClick.Enable();
@@ -30,37 +29,19 @@ public class PlaceUIObject : Singleton<PlaceUIObject>
     //when the user wants to place the componenet
     private void PlaceComponent(InputAction.CallbackContext context)
     {
-        if (isPlacingObject)
-        {
-            Ray ray = mainCamera.ScreenPointToRay(Mouse.current.position.ReadValue());
-            RaycastHit hit;
-
-            if (isPlacingObject)
-            {
-                if (Coroutine != null) StopCoroutine(Coroutine);
-                Debug.Log("Stopping");
-            }
-        }
+        if (!isPlacingObject) return;
+        isPlacingObject = true;
+        currentlySelectedComponent.OnDragEnd();
+        Debug.Log("Stopping");
     }
 
-    private IEnumerator FollowUpdate(GameObject clickedObject)
+    private void FollowUpdate()
     {
-        float initialDistance = Vector3.Distance(clickedObject.transform.position, mainCamera.transform.position);
-        clickedObject.TryGetComponent<IDrag>(out IDrag dragComponent);
+        Debug.Log("Placing");
+        Vector3 mousePosition = mainCamera.ScreenToWorldPoint(Mouse.current.position.ReadValue());
+        mousePosition.y = 0;
 
-        dragComponent?.OnDragStart();
-        while (mouseClick.ReadValue<float>() != 0)
-        {
-            Debug.Log("Following");
-            Ray ray = mainCamera.ScreenPointToRay(Mouse.current.position.ReadValue());
-            Vector3 direction = ray.GetPoint(initialDistance) - clickedObject.transform.position;
-            Vector3 xzDirection = new Vector3(direction.x, 0f, direction.z);
-
-            clickedObject.transform.position = Vector3.SmoothDamp(clickedObject.transform.position, ray.GetPoint(initialDistance), ref velocity, 1);
-            clickedObject.transform.position = new Vector3(clickedObject.transform.position.x, 4, clickedObject.transform.position.z);
-            yield return null;
-        }
-        dragComponent?.OnDragEnd();
+        currentlySelectedObject.transform.position = mousePosition;
     }
 
     void Start()
@@ -70,10 +51,11 @@ public class PlaceUIObject : Singleton<PlaceUIObject>
 
     void Update()
     {
-        if (currentlySelectedComponent)
+        if (isPlacingObject)
         {
             currentlySelectedComponent.isSelectedFromUI = true;
             currentlySelectedComponent.FollowMouse();
+            FollowUpdate();
         }
     }
 
@@ -105,10 +87,10 @@ public class PlaceUIObject : Singleton<PlaceUIObject>
         }
 
         if (!currentlySelectedComponent) return;
-        Coroutine = FollowUpdate(currentlySelectedObject);
-
-        StartCoroutine(Coroutine);
+        
+        currentlySelectedComponent.OnDragStart();
         currentlySelectedComponent.DisableFunctionality();
+        
         isPlacingObject = true;
     }
 }

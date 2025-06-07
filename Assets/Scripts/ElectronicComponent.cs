@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -26,6 +27,7 @@ public class ElectronicComponent : MonoBehaviour, IDrag
     protected void Start()
     {
         rb = GetComponent<Rigidbody>();
+        rb.useGravity = true;
     }
 
     // Update is called once per frame
@@ -60,5 +62,11 @@ public class ElectronicComponent : MonoBehaviour, IDrag
     public virtual void FollowMouse()
     {
 
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        rb.useGravity = false;
+        rb.linearVelocity = Vector3.zero;
     }
 }
