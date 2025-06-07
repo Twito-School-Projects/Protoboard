@@ -1,4 +1,4 @@
-    using UnityEngine;
+using UnityEngine;
 
 public class Hole : ConnectionPoint
 {
@@ -14,6 +14,15 @@ public class Hole : ConnectionPoint
     public bool IsNegativeRail => parentRail != null && charge == Charge.Negative;
     public bool IsPositiveRail => parentRail != null && charge == Charge.Positive;
     public bool IsTerminal => parentTerminal != null && charge == Charge.None;
+
+    public bool IsOccupied { get; set; } = false;
+    public ElectronicComponent OccupiedBy { get; set; } = null;
+
+    public void ClearOccupancy()
+    {
+        IsOccupied = false;
+        OccupiedBy = null;
+    }
 
 
     private new void Start()

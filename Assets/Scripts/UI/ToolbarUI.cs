@@ -7,66 +7,79 @@ using UnityEngine.UIElements;
 
 public class Toolbar : Singleton<Toolbar>
 {
-    public List<ToolbarItemObject> ToolbarItems;
-    public List<VisualElement> ToolbarVisuals;
-    public ElectronicComponent currentlySelected;
-
+   [SerializeField] private List<ComponentData> availableComponents;
+    
     private VisualElement m_Root;
     private VisualElement toolbarGrid;
-
-    private async void Configure()
+    
+    private void OnEnable()
+    {
+        SetupUI();
+        ComponentPlacementSystem.OnPlacementStarted += OnPlacementStarted;
+        ComponentPlacementSystem.OnComponentPlaced += OnComponentPlaced;
+        ComponentPlacementSystem.OnPlacementCancelled += OnPlacementCancelled;
+    }
+    
+    private void OnDisable()
+    {
+        ComponentPlacementSystem.OnPlacementStarted -= OnPlacementStarted;
+        ComponentPlacementSystem.OnComponentPlaced -= OnComponentPlaced;
+        ComponentPlacementSystem.OnPlacementCancelled -= OnPlacementCancelled;
+    }
+    
+    private void SetupUI()
     {
         m_Root = GetComponentInChildren<UIDocument>().rootVisualElement;
         toolbarGrid = m_Root.Q<VisualElement>("Grid");
-        ToolbarVisuals = toolbarGrid.Children().ToList();
+        
+        // foreach (var component in availableComponents)
+        // {
+        //     CreateToolbarButton(component);
+        // }
 
-        for (int i = 0; i < ToolbarItems.Count; i++)
-        {  
-            var child = ToolbarVisuals[i];
-            var data = child.dataSource as ToolbarItemObject;
-            
-            child.Add(new Image());
-            child.style.backgroundImage = new StyleBackground(data?.SpriteIcon);
-            child.tooltip = ToolbarItems[i].Name;
-            child.RegisterCallback<ClickEvent>(OnClickIcon);
+        foreach (var child in toolbarGrid.Children())
+        {
+            ComponentData data = child.dataSource as ComponentData;
+            child.RegisterCallback((ClickEvent evt) => OnComponentSelected(data));
         }
-
-        await UniTask.WaitForEndOfFrame();
     }
-
-    private void OnEnable()
+    
+    // private void CreateToolbarButton(ComponentData componentData)
+    // {
+    //     var button = new VisualElement();
+    //     
+    //     button.RegisterCallback((ClickEvent evt) => OnComponentSelected(componentData));
+    //     button.style.backgroundImage = new StyleBackground(componentData.icon);
+    //     button.tooltip = componentData.tooltip;
+    //     button.AddToClassList("toolbar-icon");
+    //     
+    //     toolbarGrid.Add(button);
+    // }
+    
+    private void OnComponentSelected(ComponentData componentData)
     {
-        Configure();
-        foreach (var child in ToolbarVisuals)
+        if (!ComponentPlacementSystem.Instance.StartPlacement(componentData))
         {
-            child.RegisterCallback<ClickEvent>(OnClickIcon);
+            Debug.LogWarning($"Could not start placement for {componentData.componentName}");
         }
     }
-
-    private void OnDisable()
+    
+    private void OnPlacementStarted(ComponentData componentData)
     {
-        foreach (var child in ToolbarVisuals)
-        {
-            child.UnregisterCallback<ClickEvent>(OnClickIcon);
-        }
+        // Update UI to show placement mode
+        Debug.Log($"Started placing {componentData.componentName}");
     }
-
-    private void OnClickIcon(ClickEvent evt)
+    
+    private void OnComponentPlaced(GameObject placedComponent)
     {
-        if (PlaceUIObject.Instance.currentlySelectedObject != null)
-        {
-            PlaceUIObject.Instance.DestroyCurrent();
-        }
-
-        var targetVisual = evt.target as VisualElement;
-        var data =  targetVisual.dataSource as ToolbarItemObject;
-
-        if (!data)
-        {
-            Debug.Log("No icon information found");
-            return;
-        }
-
-        PlaceUIObject.Instance.Create(data.Prefab);
+        // Update UI after successful placement
+        Debug.Log($"Successfully placed {placedComponent.name}");
     }
+    
+    private void OnPlacementCancelled()
+    {
+        // Update UI after cancelled placement
+        Debug.Log("Placement cancelled");
+    }
+
 }

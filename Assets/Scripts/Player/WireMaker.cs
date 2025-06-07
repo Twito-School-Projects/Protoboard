@@ -59,6 +59,9 @@ public class WireMaker : Singleton<WireMaker>
         Ray ray = mainCamera.ScreenPointToRay(Mouse.current.position.ReadValue());
         RaycastHit hit;
 
+        if (ComponentPlacementSystem.Instance.CurrentState != PlacementState.Idle)
+            return;
+        
         if (Physics.Raycast(ray, out hit))
         {
             if (hit.collider != null && hit.collider.gameObject.CompareTag("ConnectionPoint"))
@@ -86,7 +89,12 @@ public class WireMaker : Singleton<WireMaker>
     {
         Ray ray = mainCamera.ScreenPointToRay(Mouse.current.position.ReadValue());
         RaycastHit hit;
-
+        
+        //do nott allow wire creation if the placement system is in use
+        if (ComponentPlacementSystem.Instance.CurrentState != PlacementState.Idle)
+        {
+            return;
+        }
         if (Physics.Raycast(ray, out hit))
         {
             if (hit.collider != null && hit.collider.gameObject.CompareTag("ConnectionPoint"))

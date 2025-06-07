@@ -13,7 +13,9 @@ public class Breadboard : ElectronicComponent
     public List<CircuitTree> DisconnectedCircuitTrees = new List<CircuitTree>();
 
     public int numberOfColumns = 30;
-
+    
+    public float HoleDistance { get; private set; }
+    
     private void OnEnable()
     {
         if (ComponentTracker.Instance.breadboard != null)
@@ -96,6 +98,9 @@ public class Breadboard : ElectronicComponent
         {
             terminals.Add(i, new Terminal());
         }
+        
+        //getting hole distance
+        HoleDistance = (children[1].position.x - children[0].position.x) - (children[1].position.x - children[0].position.x) / 2;
 
         foreach (var child in children)
         {
@@ -119,6 +124,8 @@ public class Breadboard : ElectronicComponent
 
             parentTerminal.holes.Add(hole);
         }
+        
+        
     }
 
     private void SetRails()

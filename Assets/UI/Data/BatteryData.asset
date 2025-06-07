@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 49d0376e54584e958aa1b469e693cb69, type: 3}
+  m_Name: BatteryData
+  m_EditorClassIdentifier: 
+  componentName: Battery
+  componentType: 0
+  prefab: {fileID: 9006056301121901118, guid: c210658945d352c43b70f1705dd49001, type: 3}
+  icon: {fileID: 21300000, guid: e83db0caa7461be40afa2a90a610883a, type: 3}
+  allowMultiple: 0
+  requiresBreadboard: 0
+  requiresPowerSource: 0
+  snapRadius: 0.00249984
+  validSurfaces:
+    serializedVersion: 2
+    m_Bits: 64
+  boundsSize: {x: 1, y: 1, z: 1}
+  description: Creates a battery
+  tooltip: Battery

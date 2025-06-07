@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 7776374812663702637}
   - component: {fileID: 7354637372289043287}
   - component: {fileID: 5114412630420768079}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Cathode
   m_TagString: ConnectionPoint
   m_Icon: {fileID: 0}
@@ -145,7 +145,7 @@ GameObject:
   - component: {fileID: 4687698684652698667}
   - component: {fileID: 26460644248080250}
   - component: {fileID: 9161204707358748220}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Anode
   m_TagString: ConnectionPoint
   m_Icon: {fileID: 0}
@@ -337,6 +337,10 @@ PrefabInstance:
       value: Battery
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 9c01e4b95cdaf974eb9ce9f21d1cb0ea, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 9c01e4b95cdaf974eb9ce9f21d1cb0ea, type: 3}
       propertyPath: m_TagString
       value: Draggable
       objectReference: {fileID: 0}
@@ -390,6 +394,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9f057a3f85be4f9499c17efc8903e4dd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  rb: {fileID: 586500219675794500}
   isUnidirectional: 1
   imageSprite: {fileID: 21300000, guid: e83db0caa7461be40afa2a90a610883a, type: 3}
   collider: {fileID: 6000630481572493180}
@@ -397,6 +402,7 @@ MonoBehaviour:
   - {fileID: 7492595656799138795}
   componentType: 0
   isSelectedFromUI: 0
+  isInPlacementMode: 0
   positiveElectrode: {fileID: 0}
   negativeElectrode: {fileID: 0}
   voltage: 1.5
