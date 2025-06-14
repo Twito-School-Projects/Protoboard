@@ -109,7 +109,6 @@ MonoBehaviour:
   nextConnectedPoint: {fileID: 0}
   previousConnectedPoint: {fileID: 0}
   charge: 0
-  wire: {fileID: 0}
   type: 0
 --- !u!65 &5114412630420768079
 BoxCollider:
@@ -241,7 +240,6 @@ MonoBehaviour:
   nextConnectedPoint: {fileID: 0}
   previousConnectedPoint: {fileID: 0}
   charge: 1
-  wire: {fileID: 0}
   type: 0
 --- !u!65 &9161204707358748220
 BoxCollider:
@@ -403,6 +401,12 @@ MonoBehaviour:
   componentType: 0
   isSelectedFromUI: 0
   isInPlacementMode: 0
+  snapDistance: 0.5
+  snapTargetLayer:
+    serializedVersion: 2
+    m_Bits: 1
+  mouseTargetPeg: {fileID: 0}
+  inputActions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   positiveElectrode: {fileID: 0}
   negativeElectrode: {fileID: 0}
   voltage: 1.5

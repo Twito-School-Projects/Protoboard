@@ -105,6 +105,7 @@ MonoBehaviour:
   meshRenderer: {fileID: 1808512844606177697}
   material: {fileID: 2100000, guid: b7f1f74a3696b9440b9c8f4e0ac4f542, type: 2}
   boxCollider: {fileID: 0}
+  inputActions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
 --- !u!65 &6134868817745503343
 BoxCollider:
   m_ObjectHideFlags: 0

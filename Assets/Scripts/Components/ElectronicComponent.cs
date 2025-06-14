@@ -18,7 +18,6 @@ public class ElectronicComponent : MonoBehaviour, IDrag
     [SerializeField] protected Rigidbody rb;
     public bool isUnidirectional = true;
     public Sprite imageSprite;
-    public new Collider collider;
     public Renderer[] renderers;
     public ComponentType componentType;
     public bool isSelectedFromUI = false;
@@ -32,10 +31,35 @@ public class ElectronicComponent : MonoBehaviour, IDrag
 
     public Transform mouseTargetPeg;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
+    
+    [SerializeField] private InputActionAsset inputActions;
+    private InputAction mouseClick;
+    
+    private Camera mainCamera;
+    public Collider collider;
+
+    public bool hasCircuitCompleted = false ;
+    
     protected void Start()
     {
         //rb = GetComponent<Rigidbody>();
         rb.useGravity = true;
+        mainCamera = Camera.main;
+    }
+    
+    private void OnEnable()
+    {
+        var map = inputActions.FindActionMap("Player");
+        mouseClick = map.FindAction("Click");
+
+        mouseClick.Enable();
+        mouseClick.performed += MousePressed;
+    }
+
+    private void OnDisable()
+    {
+        mouseClick.performed -= MousePressed;
+
     }
 
     // Update is called once per frame
@@ -46,7 +70,27 @@ public class ElectronicComponent : MonoBehaviour, IDrag
     private void OnDestroy()
     {
         if (isInPlacementMode) Debug.Log("Destroyed for some reason");
+
+        if (!isInPlacementMode)
+        {
+            Deleted();
+        }
     }
+
+    private void MousePressed(InputAction.CallbackContext context)
+    {
+        if (isInPlacementMode) return;
+        
+        if (!context.performed) return;
+        Ray ray = mainCamera.ScreenPointToRay(Mouse.current.position.ReadValue());
+        RaycastHit hit;
+
+        if (!Physics.Raycast(ray, out hit)) return;
+        if (!hit.collider || hit.collider!= collider) return;
+        Deleted();
+    }
+    
+    protected virtual void Deleted() {}
 
     public virtual void SetPlacementMode(bool placementMode)
     {
@@ -152,7 +196,7 @@ public class ElectronicComponent : MonoBehaviour, IDrag
             
             if (hole && !hole.IsOccupied)
             {
-                Debug.Log("Find: " + hole.name);
+                //Debug.Log("Find: " + hole.name);
                 float distance = Vector3.Distance(position, hole.transform.position);
                 if (distance < nearestDistance)
                 {

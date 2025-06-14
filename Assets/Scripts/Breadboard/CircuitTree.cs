@@ -45,6 +45,12 @@ public class CircuitTree
     {
         Root = new CircuitNode(data);
     }
+    
+    public CircuitTree(CircuitNode data)
+    {
+        Root = data;
+    }
+
 
     public void AddChildNodesToRoot(List<ConnectionPoint> nodes)
     {
@@ -71,10 +77,11 @@ public class CircuitTree
             node.AddChildNode(new CircuitNode(child, node));
         }
     }
-
+    
+    public CircuitNode DepthFirstSearch(ConnectionPoint target) => DepthFirstSearch(Root, target);
     public CircuitNode DepthFirstSearch(CircuitNode node, ConnectionPoint target)
     {
-        if (node == null || target == null)
+        if (node == null || !target)
             return null;
 
         if (node.Data.Equals(target))
@@ -100,7 +107,7 @@ public class CircuitTree
         foreach (var child in node.Children)
         {
             RemoveChildren(child);
-            ComponentTracker.Instance.breadboard.PropogatePower(node);
+            CircuitManager.Instance.PropagatePower(node);
             node.Children.Remove(child);
         }
     }

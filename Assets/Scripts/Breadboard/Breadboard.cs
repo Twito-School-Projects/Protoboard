@@ -8,10 +8,6 @@ public class Breadboard : ElectronicComponent
 {
     public Dictionary<int, Terminal> terminals = new Dictionary<int, Terminal>();
     public Dictionary<int, Rail> rails = new Dictionary<int, Rail>();
-    public CircuitTree CircuitTree = new CircuitTree(null);
-
-    public List<CircuitTree> DisconnectedCircuitTrees = new List<CircuitTree>();
-
     public int numberOfColumns = 30;
     
     public float HoleDistance { get; private set; }
@@ -28,35 +24,6 @@ public class Breadboard : ElectronicComponent
 
         SetTerminals();
         SetRails();
-    }
-
-    public void SetRootCircuitNode(BatteryElectrode root, Rail rail)
-    {
-        CircuitTree.Root = new CircuitNode(root);
-        CircuitTree.AddChildNodesToRoot(rail.holes.Cast<ConnectionPoint>().ToList());
-    }
-
-    public void AddHoleToTree(ConnectionPoint source, ConnectionPoint target)
-    {
-        CircuitNode foundNode = CircuitTree.DepthFirstSearch(CircuitTree.Root, source);
-        if (foundNode != null)
-        {
-            Debug.Log($"Node found of name {foundNode.Data.name}");
-        }
-    }
-
-    public void PropogatePower(CircuitNode node)
-    {
-        node.Children.ForEach(c =>
-        {
-            var child = c.Data as Hole; 
-            if (child.IsTerminal || child.IsNegativeRail)
-            {
-                child.SetPowered(node.Data.powered);
-            }
-
-            PropogatePower(c);
-        });
     }
 
     public new void Start()
@@ -187,6 +154,8 @@ public class Breadboard : ElectronicComponent
             hole.parentBreadboard = this;
 
             parentRail.holes.Add(hole);
+            if (hole.charge == Charge.Positive) 
+                CircuitManager.Instance.Create(TreeType.Battery, hole);
         }
     }
 }

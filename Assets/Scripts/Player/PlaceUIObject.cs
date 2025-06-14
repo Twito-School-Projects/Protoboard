@@ -22,7 +22,6 @@ public class PlaceUIObject : Singleton<PlaceUIObject>
 
     private void OnDisable()
     {
-        mouseClick.Disable();
         mouseClick.performed -= PlaceComponent;
     }
 

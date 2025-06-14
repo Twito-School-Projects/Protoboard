@@ -408,8 +408,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 612dc93d49c4ccd469b869f0a90ce57c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cameraSpeed: 0.1
-  cameraSmoothTime: 0
+  cameraSpeed: 3
+  zoomSpeed: 3
   inputActions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
 --- !u!114 &330585549
 MonoBehaviour:
@@ -1275,6 +1275,7 @@ GameObject:
   - component: {fileID: 2094389003}
   - component: {fileID: 2094389004}
   - component: {fileID: 2094389005}
+  - component: {fileID: 2094389006}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -1394,6 +1395,18 @@ MonoBehaviour:
   currentlySelectedComponent: {fileID: 0}
   currentlySelectedObject: {fileID: 0}
   isPlacingObject: 0
+--- !u!114 &2094389006
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2094389000}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b4408b5e7bb149b5b15af713b4ddf949, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &4403030579258147634
 PrefabInstance:
   m_ObjectHideFlags: 0

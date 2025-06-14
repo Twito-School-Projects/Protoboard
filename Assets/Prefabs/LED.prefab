@@ -130,6 +130,7 @@ GameObject:
   - component: {fileID: 4549326689583799746}
   - component: {fileID: 5615492481401139207}
   - component: {fileID: 5539558142414799892}
+  - component: {fileID: -7853465669863138658}
   m_Layer: 0
   m_Name: LED
   m_TagString: Untagged
@@ -180,8 +181,9 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 257
   mouseTargetPeg: {fileID: 1029661741513655957}
-  anode: {fileID: 0}
-  cathode: {fileID: 0}
+  inputActions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  anodeHole: {fileID: 0}
+  cathodeHole: {fileID: 0}
   anodeLocation: {fileID: 5102647922349065953}
   cathodeLocation: {fileID: 1029661741513655957}
 --- !u!54 &5539558142414799892
@@ -211,6 +213,27 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!65 &-7853465669863138658
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4518257847744199710}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &4703414283927285406
 GameObject:
   m_ObjectHideFlags: 0

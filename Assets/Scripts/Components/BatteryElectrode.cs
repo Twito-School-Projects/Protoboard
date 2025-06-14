@@ -1,4 +1,6 @@
-﻿public class BatteryElectrode : ConnectionPoint
+﻿using UnityEngine;
+
+public class BatteryElectrode : ConnectionPoint
 {
     private new void Start()
     {

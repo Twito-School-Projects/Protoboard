@@ -21,7 +21,6 @@ public class DragAndDrop : Singleton<DragAndDrop>
 
     private void OnDisable()
     {
-        mouseClick.Disable();
         mouseClick.performed -= MousePressed;
     }
 

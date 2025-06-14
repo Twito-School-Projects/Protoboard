@@ -1,13 +1,15 @@
+using System;
+using System.Linq;
 using UnityEngine;
 
 public class LED : ElectronicComponent
 {
-    public Hole anode;
-    public Hole cathode;
+    public Hole anodeHole;
+    public Hole cathodeHole;
 
     public Transform anodeLocation;
     public Transform cathodeLocation;
-
+    
     private new void Start()
     {
         base.Start();
@@ -16,23 +18,12 @@ public class LED : ElectronicComponent
     private new void Update()
     {
         base.Update();
-        
-        // If in placement mode, show snap preview
-        // if (isInPlacementMode)
-        // {
-        //     CheckForSnapTargets();
-        // }
+        if (anodeHole)
+            hasCircuitCompleted = CircuitManager.Instance.HasValidPath(cathodeHole);
+
+            //CircuitManager.Instance.PrintPaths(CircuitManager.Instance.Trees.First().Value);
     }
     
-    // private void CheckForSnapTargets()
-    // {
-    //     // Find nearest holes for both pins for visual feedback
-    //     anode = FindNearestHole(anodeLocation.position);
-    //     cathode = FindNearestHole(cathodeLocation.position);
-    //     
-    //     // Visual feedback could be added here (highlighting holes, etc.)
-    // }
-    //
     public override void OnDragEnd()
     {
         base.OnDragEnd();
@@ -50,8 +41,8 @@ public class LED : ElectronicComponent
             SnapToHole(cathodeLocation, initialHole);
             SnapToHole(anodeLocation, anodeHole);
 
-            cathode = initialHole;
-            anode = anodeHole;
+            this.cathodeHole = initialHole;
+            this.anodeHole = anodeHole;
             
             Debug.Log(cathodeHole.name);
             Debug.Log(anodeHole.name);
@@ -73,7 +64,55 @@ public class LED : ElectronicComponent
         base.OnDragStart();
         
         // Clear hole occupancy when starting to drag
-        if (anode != null) anode.ClearOccupancy();
-        if (cathode != null) cathode.ClearOccupancy();
+        if (anodeHole != null) anodeHole.ClearOccupancy();
+        if (cathodeHole != null) cathodeHole.ClearOccupancy();
+    }
+
+    protected override void Deleted()
+    {
+        if (!cathodeHole.powered) return;
+        if (isInPlacementMode) return;
+        
+        //having power flow from the cathode to the anode
+        var cathodeNode = CircuitManager.Instance.FindNodeInTrees(cathodeHole);
+        var anodeNode = cathodeNode.Children.FirstOrDefault(x => x.Data == anodeHole);
+
+        if (cathodeNode == null)
+        {
+            throw new Exception("Something is very wrong");
+        }
+        if (anodeNode == null)
+        {
+            throw new Exception("Something is very wrong");
+        }
+    
+        CircuitManager.Instance.DisconnectNodes(cathodeNode.Data, anodeNode.Data);
+    }
+    
+    public override void OnPlaced()
+    {
+        base.OnPlaced();
+        if (!cathodeHole.powered) return;
+        
+        //having power flow from the cathode to the anode
+        var cathodeNode = CircuitManager.Instance.FindNodeInTree(TreeType.Battery, cathodeHole);
+        var anodeNode = CircuitManager.Instance.FindNodeInTree(TreeType.Battery, anodeHole);
+
+        if (cathodeNode == null)
+        {
+            Debug.Log("Cathode is not in the tree, something is wrong" % Colorize.Orange);
+            return;
+        }
+        
+        anodeNode ??= CircuitManager.Instance.FindNodeInTree(TreeType.DisconnectedBattery, anodeHole);
+        if (anodeNode == null)
+        {
+            anodeNode = CircuitManager.Instance.AddChild(cathodeNode, anodeHole);
+            CircuitManager.Instance.PropagatePower(cathodeNode);
+        }
+        else
+        {
+            CircuitManager.Instance.ReconnectTree(cathodeHole,anodeHole, TreeType.Battery);
+        }
     }
 }

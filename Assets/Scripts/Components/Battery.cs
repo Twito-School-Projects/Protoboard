@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 /*
@@ -11,8 +12,13 @@ public class Battery : ElectronicComponent
     public BatteryElectrode positiveElectrode;
     public BatteryElectrode negativeElectrode;
 
+    private Wire positiveWire;
+    private Wire negativeWire;
+    
     public float voltage = 1.5f;
 
+    public static event Action<Wire, ConnectionPoint, ConnectionPoint> OnBatteryDestroyed;
+    
     private new void Start()
     {
         base.Start();
@@ -46,8 +52,7 @@ public class Battery : ElectronicComponent
         var positiveHole = ConnectElectrodesToBreadboard(startPositiveHole, endPositiveHole, positiveElectrode);
         var negativeHole = ConnectElectrodesToBreadboard(startNegativeHole, endNegativeHole, negativeElectrode);
 
-        breadboard.SetRootCircuitNode(positiveElectrode, ((Hole)positiveHole).parentRail);
-        var foundNode = breadboard.CircuitTree.DepthFirstSearch(breadboard.CircuitTree.Root, positiveHole);
+        var foundNode = CircuitManager.Instance.FindNodeInTrees(positiveHole);
 
         if (foundNode != null)
         {
@@ -57,31 +62,25 @@ public class Battery : ElectronicComponent
 
     private ConnectionPoint ConnectElectrodesToBreadboard(Hole startHole, Hole endHole, BatteryElectrode electrode)
     {
-        if (Vector3.Distance(startHole.transform.position, electrode.transform.position) < Vector3.Distance(endHole.transform.position, electrode.transform.position))
-        {
-            Debug.Log("Creating wire from the left");
-            WireMaker.Instance.CreateWireBetweenTwoPoints(electrode, startHole);
-            return startHole;
-        }
-        else
-        {
-            Debug.Log("Creating wire from the right");
-            WireMaker.Instance.CreateWireBetweenTwoPoints(electrode, endHole);
-            return endHole;
-        }
+        Hole hole;
+        hole = Vector3.Distance(startHole.transform.position, electrode.transform.position) <
+               Vector3.Distance(endHole.transform.position, electrode.transform.position) ? startHole : endHole;
+
+        Wire w = WireMaker.Instance.CreateWireBetweenTwoPoints(electrode, hole);
+
+        if (electrode.charge == Charge.Positive) positiveWire = w; 
+        else negativeWire = w;
+        
+        return hole;
     }
 
     private void OnDestroy()
     {
-        positiveElectrode.wire.end.previousConnectedPoint = null;
-        negativeElectrode.wire.end.previousConnectedPoint = null;
+        positiveWire.end.previousConnectedPoint = null;
+        negativeWire.end.previousConnectedPoint = null;
 
-        positiveElectrode.wire.end.wire = null;
-        negativeElectrode.wire.end.wire = null;
-
-        Destroy(positiveElectrode.wire.gameObject);
-        Destroy(negativeElectrode.wire.gameObject);
-
+        Destroy(positiveWire.gameObject);
+        Destroy(negativeWire.gameObject);
     }
 
     // Update is called once per frame
@@ -95,22 +94,10 @@ public class Battery : ElectronicComponent
     {
         rb.useGravity = false;
         rb.linearVelocity = Vector3.zero;
-
-        positiveElectrode.wire?.OnDragStart();
-        if (negativeElectrode.wire != null) negativeElectrode.wire.OnDragStart();
     }
 
     public override void OnDragEnd()
     {
         rb.useGravity = true;
-    }
-
-    private void OnCollisionEnter(Collision collision)
-    {
-        if (collision.gameObject.layer == LayerMask.NameToLayer("Surface"))
-        {
-            if (positiveElectrode.wire != null) positiveElectrode.wire.OnDragEnd();
-            if (negativeElectrode.wire != null) negativeElectrode.wire.OnDragEnd();
-        }
     }
 }

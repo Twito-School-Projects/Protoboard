@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class Hole : ConnectionPoint
@@ -15,8 +16,7 @@ public class Hole : ConnectionPoint
     public bool IsPositiveRail => parentRail != null && charge == Charge.Positive;
     public bool IsTerminal => parentTerminal != null && charge == Charge.None;
 
-    public bool IsOccupied { get; set; } = false;
-    public ElectronicComponent OccupiedBy { get; set; } = null;
+
 
     public void ClearOccupancy()
     {
@@ -24,6 +24,7 @@ public class Hole : ConnectionPoint
         OccupiedBy = null;
     }
 
+    
 
     private new void Start()
     {
@@ -38,14 +39,11 @@ public class Hole : ConnectionPoint
 
         if (isBeingHighlighted)
             return;
+        
         if (powered)
-            {
-                Debug_SetPoweredOnColour();
-            }
-            else
-            {
-                Debug_SetPoweredOffColour();
-            }
+            Debug_SetPoweredOnColour();
+        else
+            Debug_SetPoweredOffColour();
     }
 
     public override void ConnectToHole(ConnectionPoint hole)

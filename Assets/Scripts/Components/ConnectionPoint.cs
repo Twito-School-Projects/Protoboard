@@ -26,9 +26,10 @@ public class ConnectionPoint : MonoBehaviour
     public ConnectionPoint previousConnectedPoint;
     public Charge charge;
 
-    public Wire wire;
     public ConnectionPointType type;
-
+    public bool IsOccupied { get; set; } = false;
+    public ElectronicComponent OccupiedBy { get; set; } = null;
+    
     public void Start()
     {
         MeshRenderer = GetComponent<MeshRenderer>();
@@ -36,6 +37,19 @@ public class ConnectionPoint : MonoBehaviour
 
         startColor = material.color;
         material.color = Color.clear;
+    }
+    
+    private void OnEnable()
+    {
+        Wire.OnWireConnected += OnWireConnectedEvent;
+        Wire.OnWireDeleted += OnWireDeletedEvent;
+        WireMaker.WireCreationCancelled += OnWireCreationCancelled;
+    }
+    private void OnDisable()
+    {
+        Wire.OnWireConnected -= OnWireConnectedEvent;
+        Wire.OnWireDeleted -= OnWireDeletedEvent;
+        WireMaker.WireCreationCancelled -= OnWireCreationCancelled;
     }
 
     public void Highlight(bool lockHighlight = false)
@@ -61,5 +75,42 @@ public class ConnectionPoint : MonoBehaviour
     { }
 
     public virtual void SetPowered(bool powered)
-    { }
+    {
+    }
+
+    private void OnWireCreationCancelled()
+    {
+        RemoveHighlight(true);
+    }
+
+    private void OnWireDeletedEvent(Wire wireComponent, ConnectionPoint start, ConnectionPoint end)
+    {
+        if (start == this)
+        {
+            nextConnectedPoint = null;
+            if (powered) end.SetPowered(false);
+        }
+        else
+        {
+            end.previousConnectedPoint = null;
+        }
+        isTaken = false;
+    }
+
+
+    private void OnWireConnectedEvent(Wire wireComponent, ConnectionPoint source, ConnectionPoint target)
+    {
+        //for another hole
+        if (source != this && target != this)
+            return;
+        Debug.Log("connected to wire");
+        
+        RemoveHighlight(true);
+        isTaken = true;
+        IsOccupied = true;
+        //occupiedby = ???
+        
+        if (source == this)
+            ConnectToHole(target);
+    }
 }

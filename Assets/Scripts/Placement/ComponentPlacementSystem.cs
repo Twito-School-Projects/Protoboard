@@ -12,7 +12,7 @@ public enum PlacementState
     Validating
 }
 
-public class ComponentPlacementSystem : Singleton<ComponentPlacementSystem>
+public class  ComponentPlacementSystem : Singleton<ComponentPlacementSystem>
 {
     [Header("Placement Settings")]
     [SerializeField] private LayerMask placementSurface = 1;

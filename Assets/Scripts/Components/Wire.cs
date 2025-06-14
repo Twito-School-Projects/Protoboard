@@ -1,6 +1,12 @@
+using System;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.InputSystem;
+using Random = UnityEngine.Random;
 
+/// <summary>
+/// Responsible for sending power throughout the board
+/// </summary>
 public class Wire : MonoBehaviour
 {
     public ConnectionPoint start;
@@ -15,14 +21,64 @@ public class Wire : MonoBehaviour
     [HideInInspector]
     public BoxCollider boxCollider;
 
+    [SerializeField] private InputActionAsset inputActions;
+
+    private Camera mainCamera;
+    private InputAction mouseClick;
+    
+    public static event Action<Wire, ConnectionPoint, ConnectionPoint> OnWireDeleted;
+    public static event Action<Wire, ConnectionPoint, ConnectionPoint> OnWireConnected;
+
     private void Start()
     {
         material = meshRenderer.materials[0];
         boxCollider = GetComponent<BoxCollider>();
+        mainCamera = Camera.main;
     }
 
+    private void OnEnable()
+    {
+        var map = inputActions.FindActionMap("Player");
+        mouseClick = map.FindAction("Click");
+
+        mouseClick.Enable();
+        mouseClick.performed += MousePressed;
+    }
+
+    private void OnDisable()
+    {
+        mouseClick.performed -= MousePressed;
+    }
     private void Update()
     {
+        UpdateScale();
+    }
+
+    public void OnCreated(ConnectionPoint start, ConnectionPoint end)
+    {
+        this.start = start;
+        this.end = end;
+
+        OnWireConnected?.Invoke(this, start, end);
+    }
+    
+    private void MousePressed(InputAction.CallbackContext callbackContext)
+    {
+        if (!callbackContext.performed) return;
+        Ray ray = mainCamera.ScreenPointToRay(Mouse.current.position.ReadValue());
+        RaycastHit hit;
+
+        if (!Physics.Raycast(ray, out hit)) return;
+        if (!hit.collider || hit.collider!= boxCollider) return;
+        
+        Disconnect();
+        Destroy(gameObject);
+        OnWireDeleted?.Invoke(this, start, end);
+    }
+
+    private void UpdateScale()
+    {
+        if (!start || !end) return;
         float distance = Vector3.Distance(start.transform.position, end.transform.position);    
 
         Vector3 midPoint = (start.transform.position + end.transform.position) / 2;
@@ -31,9 +87,9 @@ public class Wire : MonoBehaviour
         transform.position = midPoint;
         transform.rotation = rotation;
         transform.localScale = new Vector3(
-          transform.localScale.x,
-          transform.localScale.y,
-          distance
+            transform.localScale.x,
+            transform.localScale.y,
+            distance
         );
     }
 
@@ -45,50 +101,6 @@ public class Wire : MonoBehaviour
 
     public void Disconnect()
     {
-        var breadboard = ComponentTracker.Instance.breadboard;
-
-        if (start.powered)
-        {
-            end.SetPowered(false);
-        }
-
-        start.nextConnectedPoint = null;
-        end.previousConnectedPoint = null;
-
-        start.isTaken = false;
-        end.isTaken = false;
         
-        start.wire = null;
-        end.wire = null;
-
-        var startNode =  breadboard.CircuitTree.DepthFirstSearch(breadboard.CircuitTree.Root, start);
-
-        if (startNode != null)
-        {
-            //removing the child node (not deleting it)
-            var endNode = startNode.Children.First(x => x.Data == end);
-
-            if (endNode != null)
-            {
-                Debug.Log("State: " % Colorize.Gold + endNode.Data.powered);
-
-                breadboard.PropogatePower(endNode);
-                startNode.RemoveChildNode(endNode);
-                CircuitTree tree = new CircuitTree(null);
-                tree.Root = startNode;
-
-                breadboard.DisconnectedCircuitTrees.Add(tree);
-            }
-        }
-    }
-
-    public void OnDragStart()
-    {
-        boxCollider.enabled = false;
-    }
-
-    public void OnDragEnd()
-    {
-        boxCollider.enabled = true;
     }
 }
