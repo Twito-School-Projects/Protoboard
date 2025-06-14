@@ -25,7 +25,8 @@ public class ConnectionPoint : MonoBehaviour
     public ConnectionPoint nextConnectedPoint;
     public ConnectionPoint previousConnectedPoint;
     public Charge charge;
-
+    public float voltage; //will be within 0f to 1f
+    
     public ConnectionPointType type;
     public bool IsOccupied { get; set; } = false;
     public ElectronicComponent OccupiedBy { get; set; } = null;

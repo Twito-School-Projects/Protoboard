@@ -34,16 +34,21 @@ public class Hole : ConnectionPoint
 
     private void Update()
     {
-        powered = parentTerminal != null ? parentTerminal.Powered :
-            parentRail != null ? parentRail.Powered : false;
+        // powered = parentTerminal != null ? parentTerminal.Powered :
+        //     parentRail != null ? parentRail.Powered : false;
 
         if (isBeingHighlighted)
             return;
-        
+
         if (powered)
+        {
             Debug_SetPoweredOnColour();
+            voltage = 1.0f;
+        }
+            
         else
             Debug_SetPoweredOffColour();
+        
     }
 
     public override void ConnectToHole(ConnectionPoint hole)

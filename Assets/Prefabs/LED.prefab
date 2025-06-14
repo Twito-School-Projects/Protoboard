@@ -168,24 +168,26 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rb: {fileID: 5539558142414799892}
   isUnidirectional: 1
-  imageSprite: {fileID: 0}
-  collider: {fileID: 0}
   renderers:
   - {fileID: 3298024696958564992}
   - {fileID: 8947457361638486856}
   componentType: 2
-  isSelectedFromUI: 0
   isInPlacementMode: 0
+  isSelectedFromUI: 0
   snapDistance: 1
   snapTargetLayer:
     serializedVersion: 2
     m_Bits: 257
   mouseTargetPeg: {fileID: 1029661741513655957}
   inputActions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  collider: {fileID: -7853465669863138658}
+  hasCircuitCompleted: 0
   anodeHole: {fileID: 0}
   cathodeHole: {fileID: 0}
   anodeLocation: {fileID: 5102647922349065953}
   cathodeLocation: {fileID: 1029661741513655957}
+  lampMaterial: {fileID: 2100000, guid: d11f1c1088f63e7418e9242dbebbadea, type: 2}
+  emissionIntensity: 0.2
 --- !u!54 &5539558142414799892
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -325,8 +327,8 @@ Transform:
   m_GameObject: {fileID: 8590907196746860531}
   serializedVersion: 2
   m_LocalRotation: {x: 0.7071069, y: -0, z: -0, w: 0.70710677}
-  m_LocalPosition: {x: -0.0017280579, y: 0, z: 0.0066399584}
-  m_LocalScale: {x: 1, y: 0.56, z: 1}
+  m_LocalPosition: {x: -0.00118, y: 0, z: 0.0066399584}
+  m_LocalScale: {x: 0.7, y: 1.51, z: 0.7}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 2130312651281294035}

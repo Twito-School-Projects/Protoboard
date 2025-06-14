@@ -2,8 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using JetBrains.Annotations;
-using Unity.VisualScripting.Antlr3.Runtime.Tree;
 using TreeDict = System.Collections.Generic.Dictionary<Hole, CircuitTree>;
 using UnityEngine;
 
@@ -32,6 +32,14 @@ public class CircuitManager : Singleton<CircuitManager>
     private void OnDisable()
     {
         Wire.OnWireDeleted -= OnWireDeleted;
+    }
+
+    private void Update()
+    {
+        // foreach (var keyValuePair in Trees)
+        // {
+        //     PrintPaths(keyValuePair.Value);
+        // }
     }
 
     private void OnWireDeleted(Wire arg1, ConnectionPoint start, ConnectionPoint end)
@@ -160,13 +168,19 @@ public class CircuitManager : Singleton<CircuitManager>
         });
     }
 
-    public CircuitNode AddChild(CircuitNode parent, ConnectionPoint end)
+    public CircuitNode AddChild(ref CircuitNode parent, ref Hole end)
+    {
+        var c = end as ConnectionPoint;
+        return AddChild(ref parent, ref c);
+    }
+    
+    public CircuitNode AddChild(ref CircuitNode parent, ref ConnectionPoint end)
     {
         var node = new CircuitNode(end);
         var hole = end as Hole;
-        
+        Debug.Log(end.type);
         //if the child is a terminal, then add the terminals as well
-        if (end.type == ConnectionPointType.Terminal)
+       if (end.type == ConnectionPointType.Terminal)
         {
             foreach (var h in hole.parentTerminal.holes)
             {
@@ -178,10 +192,13 @@ public class CircuitManager : Singleton<CircuitManager>
 
                 var childNode = new CircuitNode(h);
                 parent.AddChildNode(childNode);
+                Debug.Log("adding child node");
             }
         }
 
         parent.AddChildNode(node);
+        parent.Children.ForEach(x => Debug.Log(x.Data.name));
+        Debug.Log(parent.Children.Last().Data.name);
         return node;
     }
     
@@ -212,7 +229,6 @@ public class CircuitManager : Singleton<CircuitManager>
     public void PrintPaths(CircuitTree tree)
     {
         var paths = tree.getPaths(tree.Root);
-        paths.Reverse();
 
         foreach (var path in paths)
         {
@@ -223,6 +239,19 @@ public class CircuitManager : Singleton<CircuitManager>
             }
             Debug.Log(a);
         }
+
+    }
+    
+    public void PrintPath(List<CircuitNode> path)
+    {
+
+        var a = new StringBuilder();
+        foreach (var item in path)
+        {
+            a.Append(item.Data.name + " -> ");
+        }
+        Debug.Log(a);
+    
 
     }
 
@@ -240,31 +269,47 @@ public class CircuitManager : Singleton<CircuitManager>
         dict.Add(root, tree);
     }
 
-    public bool HasValidPath(ConnectionPoint point)
+    public bool HasValidPath(ConnectionPoint startPoint, ConnectionPoint endPoint)
     {
-        if (point == null) return false;
-        var tree = FindTree(point);
-        var node = tree.DepthFirstSearch(point);
-
-        if (node == null)
+        if (startPoint == null || endPoint == null) return false;
+    
+        var tree = FindTree(startPoint);
+        if (tree == null) return false;
+    
+        var startNode = tree.DepthFirstSearch(startPoint);
+        var endNode = tree.DepthFirstSearch(endPoint);
+    
+        // Both points must be in the same tree
+        if (startNode == null || endNode == null)
         {
-            Debug.Log("Node does not exist");
+            //Debug.Log("Nodes not in the same tree");
             return false;
         }
-        
+    
+        // Check if there's a path from a positive source to a negative terminal
         var paths = tree.getPaths(tree.Root);
-
+    
         foreach (var path in paths)
         {
-            Debug.Log(path.Last().Data.name);
-            Debug.Log(path.First().Data.name);
-
-            if (path.First().Data.charge == Charge.Negative)
+            path.Reverse();
+            // Check if this path contains both our start and end points
+            bool hasStart = path.Any(node => node.Data == startPoint);
+            bool hasEnd = path.Any(node => node.Data == endPoint);
+            bool hasNegativeRail = path.Any(node => node.Data.type == ConnectionPointType.Rail && 
+                                                    node.Data.charge == Charge.Negative);
+            //Debug.Log($"{hasStart} {hasEnd} {hasNegativeRail}");
+            if (hasStart && hasEnd && hasNegativeRail)
             {
-                return true;
+                // Verify the path goes from positive to negative
+                var result =  path.First().Data.charge == Charge.Positive && 
+                       path.Last().Data.charge == Charge.Negative;
+                
+                PrintPath(path);
+                return result;
             }
         }
-
+    
         return false;
+
     }
 }

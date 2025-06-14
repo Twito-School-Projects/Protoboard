@@ -17,14 +17,13 @@ public class ElectronicComponent : MonoBehaviour, IDrag
     private static readonly int Color1 = Shader.PropertyToID("_Color");
     [SerializeField] protected Rigidbody rb;
     public bool isUnidirectional = true;
-    public Sprite imageSprite;
     public Renderer[] renderers;
     public ComponentType componentType;
-    public bool isSelectedFromUI = false;
 
     [Header("Placement")]
     public bool isInPlacementMode = false;
 
+    public bool isSelectedFromUI;
     [Header("Snapping")]
     public float snapDistance = 0.5f;
     public LayerMask snapTargetLayer = 1; // Layer for breadboard holes
@@ -36,7 +35,7 @@ public class ElectronicComponent : MonoBehaviour, IDrag
     private InputAction mouseClick;
     
     private Camera mainCamera;
-    public Collider collider;
+    public new Collider collider;
 
     public bool hasCircuitCompleted = false ;
     

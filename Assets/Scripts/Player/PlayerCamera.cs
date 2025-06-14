@@ -54,11 +54,10 @@ public class PlayerCamera : MonoBehaviour
     void Update()
     {
         Vector2 input = movementAction.ReadValue<Vector2>();
-        float z = zoomAction.ReadValue<float>();
-        Vector3 movement = new Vector3(input.x, 0, input.y) * (cameraSpeed * Time.deltaTime);
-        
-        transform.Translate(movement);
+        Vector3 movement = new Vector3(input.x, input.y, 0).normalized;
+        transform.Translate(movement *(cameraSpeed * Time.deltaTime));
 
+        var z = zoomAction.ReadValue<Vector2>().y;
         mainCamera.orthographicSize -= z * zoomSpeed * Time.deltaTime;
     }
 }

@@ -24,12 +24,14 @@ public class CircuitNode
 
     public void AddChildNode(CircuitNode childNode)
     {
+        childNode.Parent = this;
         Children.Add(childNode);
         childNode.Data.SetPowered(Data.powered);
     }
 
     public void RemoveChildNode(CircuitNode childNode)
     {
+        childNode.Parent = null;
         Children.Remove(childNode);
         childNode.Data.SetPowered(Data.powered);
     }
@@ -40,6 +42,7 @@ public class CircuitTree
 {
     public CircuitNode Root { get; set; }
     public bool IsEmpty => Root == null || Root.Children.Count == 0;
+    public bool IsCompleted = false;
 
     public CircuitTree(ConnectionPoint data)
     {

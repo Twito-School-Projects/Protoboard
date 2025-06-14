@@ -28,6 +28,8 @@ public class WireMaker : Singleton<WireMaker>
     private int numberOfWires = 0;
 
     public static event Action WireCreationCancelled;
+    public static event Action WireCreationStarted;
+    public static event Action WireCreationEnded;
     
     private void OnEnable()
     {
@@ -36,7 +38,12 @@ public class WireMaker : Singleton<WireMaker>
 
         mouseClick.Enable();
         mouseClick.performed += MousePressed;
+        
+        WireCreationStarted += OnWireCreationStarted;
+        WireCreationEnded += OnWireCreationEnded;
     }
+
+
 
     private void OnDisable()
     {
@@ -44,6 +51,17 @@ public class WireMaker : Singleton<WireMaker>
         mouseClick.performed -= MousePressed;
 
         inputActions.FindActionMap("Player").Disable();
+        
+        WireCreationStarted -= OnWireCreationStarted;
+        WireCreationEnded -= OnWireCreationEnded;
+    }
+    
+    private void OnWireCreationEnded()
+    {
+    }
+
+    private void OnWireCreationStarted()
+    {
     }
 
     private void Start()
@@ -102,9 +120,15 @@ public class WireMaker : Singleton<WireMaker>
             if (hit.collider && hit.collider.gameObject.CompareTag("ConnectionPoint"))
             {
                 if (!isMakingWire)
+                {
                     StartWireCreator(hit.collider.gameObject, startConnectionPoint);
+                    WireCreationStarted?.Invoke();
+                }
                 else
+                {
                     EndWireCreator(hit.collider.gameObject, endConnectionPoint);
+                    WireCreationEnded?.Invoke();
+                }
             }
         }
     }
@@ -182,7 +206,11 @@ public class WireMaker : Singleton<WireMaker>
         }
         Debug.Log("Ending wire from hole: " + clickedGameObject.name);
 
-        if (!HandleCircuitConnection(out var parentPoint, out var childPoint)) return;
+        if (!HandleCircuitConnection(out var parentPoint, out var childPoint))
+        {
+            Debug.Log("Failed to handle circuit connection, cancelling wire creation");
+            return;
+        }
         Wire wireComponent = CreateWireBetweenTwoPoints(parentPoint, childPoint);
 
         //positive electrode
@@ -229,15 +257,23 @@ public class WireMaker : Singleton<WireMaker>
         {
             throw new Exception("Parent node is null SOMETHING IS VERY WRONG");
         }
+
+        if (!(parentPoint as Hole).IsPositiveRail && parentNode.Parent == null)
+        {
+            throw new Exception("Parent is not positive rail and has no parent, something is very wrong");
+        }
         CircuitManager.Instance.PropagatePower(parentNode);
         
         //if the child node is by itself
         if (possibleDisconnectedChildNode == null)
         {
-            CircuitManager.Instance.AddChild(parentNode, endConnectionPoint);
+            CircuitManager.Instance.AddChild(ref parentNode, ref childPoint);
             
             if (childPoint.type == ConnectionPointType.Rail && childPoint.charge == Charge.Negative)
             {
+                var parentTree = CircuitManager.Instance.FindTree(parentPoint);
+                parentTree.IsCompleted = true;
+
                 Debug.Log("Complete circuit" % Colorize.Green);
             }
         } else //if the child node is its own circuit tree that was previously disconnected

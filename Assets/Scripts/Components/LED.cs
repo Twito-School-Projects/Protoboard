@@ -4,31 +4,48 @@ using UnityEngine;
 
 public class LED : ElectronicComponent
 {
+    private static readonly int EmissionColor = Shader.PropertyToID("_EmissionColor");
+    
     public Hole anodeHole;
     public Hole cathodeHole;
 
     public Transform anodeLocation;
     public Transform cathodeLocation;
     
+    public Material lampMaterial;
+    public float emissionIntensity = 0.2f;
+    
+    private Color startEmissiveColour;
+    
     private new void Start()
     {
         base.Start();
+        isUnidirectional = false;
+        startEmissiveColour = lampMaterial.GetColor(EmissionColor);
     }
 
     private new void Update()
     {
         base.Update();
-        if (anodeHole)
-            hasCircuitCompleted = CircuitManager.Instance.HasValidPath(cathodeHole);
+        if (anodeHole && cathodeHole)
+            //hasCircuitCompleted = CircuitManager.Instance.HasValidPath(anodeHole, cathodeHole) && cathodeHole.powered;
+        
 
+        if (hasCircuitCompleted)
+        {
+            SetLedIntensity();
+        }
+        else
+        {
+            lampMaterial.SetColor(EmissionColor, startEmissiveColour);
+        }
             //CircuitManager.Instance.PrintPaths(CircuitManager.Instance.Trees.First().Value);
     }
-    
-    public override void OnDragEnd()
+
+    private void SetLedIntensity()
     {
-        base.OnDragEnd();
-        
-        // Don't handle snapping here anymore - let ComponentPlacementSystem handle it
+        emissionIntensity = cathodeHole.voltage;
+        lampMaterial.SetColor(EmissionColor, startEmissiveColour * emissionIntensity);
     }
     
     public override bool TrySnapToBreadboard(Hole initialHole)
@@ -107,12 +124,14 @@ public class LED : ElectronicComponent
         anodeNode ??= CircuitManager.Instance.FindNodeInTree(TreeType.DisconnectedBattery, anodeHole);
         if (anodeNode == null)
         {
-            anodeNode = CircuitManager.Instance.AddChild(cathodeNode, anodeHole);
+            anodeNode = CircuitManager.Instance.AddChild(ref cathodeNode, ref anodeHole);
             CircuitManager.Instance.PropagatePower(cathodeNode);
+            Debug.Log("anode not in tree, adding it");
         }
         else
         {
             CircuitManager.Instance.ReconnectTree(cathodeHole,anodeHole, TreeType.Battery);
+            Debug.Log("anode in tree, reconnecting");
         }
     }
 }
