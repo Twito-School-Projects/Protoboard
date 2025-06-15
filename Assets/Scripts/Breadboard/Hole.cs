@@ -111,4 +111,14 @@ public class Hole : ConnectionPoint
     }
 
     public void Debug_SetPoweredOffColour() => material.color = Color.clear;
+    
+    public override string ToString()
+    {
+        if (IsPositiveRail || IsNegativeRail)
+        {
+            return $"{(IsPositiveRail ? "+" : "-")}{(rowChar == 'R' ? "Top:" : "Bottom:")}{column}";
+        }
+        
+        return $"{rowChar}:{column}";
+    }
 }

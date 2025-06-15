@@ -1,9 +1,6 @@
 using System;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using static Unity.VisualScripting.Member;
-using static UnityEngine.GraphicsBuffer;
 
 public class WireMaker : Singleton<WireMaker>
 {
@@ -28,9 +25,9 @@ public class WireMaker : Singleton<WireMaker>
 
     private int numberOfWires = 0;
 
-    public static event Action WireCreationCancelled;
-    public static event Action WireCreationStarted;
-    public static event Action WireCreationEnded;
+    public static event Action<Hole> WireCreationCancelled;
+    public static event Action<Hole> WireCreationStarted;
+    public static event Action<Hole, Hole> WireCreationEnded;
     
     public LayerMask breadboardLayerMask;
     
@@ -44,8 +41,15 @@ public class WireMaker : Singleton<WireMaker>
         
         WireCreationStarted += OnWireCreationStarted;
         WireCreationEnded += OnWireCreationEnded;
+        WireCreationCancelled += OnWireCreationCancelled;
     }
 
+    private void OnWireCreationCancelled(Hole _)
+    {
+        startConnectionPoint = null;
+        endConnectionPoint = null;
+        isMakingWire = false;
+    }
 
 
     private void OnDisable()
@@ -57,13 +61,19 @@ public class WireMaker : Singleton<WireMaker>
         
         WireCreationStarted -= OnWireCreationStarted;
         WireCreationEnded -= OnWireCreationEnded;
+        WireCreationCancelled -= OnWireCreationCancelled;
+
     }
     
-    private void OnWireCreationEnded()
+    private void OnWireCreationEnded(Hole _, Hole _2)
     {
+        startConnectionPoint = null;
+        endConnectionPoint = null;
+        isMakingWire = false;
+        numberOfWires++;
     }
 
-    private void OnWireCreationStarted()
+    private void OnWireCreationStarted(Hole _)
     {
     }
 
@@ -124,31 +134,31 @@ public class WireMaker : Singleton<WireMaker>
             {
                 if (!isMakingWire)
                 {
-                    StartWireCreator(hit.collider.gameObject, startConnectionPoint);
-                    WireCreationStarted?.Invoke();
+                    if (StartWireCreator(hit.collider.gameObject, startConnectionPoint))
+                        WireCreationStarted?.Invoke(startConnectionPoint as Hole);
                 }
                 else
                 {
-                    EndWireCreator(hit.collider.gameObject, endConnectionPoint);
-                    WireCreationEnded?.Invoke();
+                    if (EndWireCreator(hit.collider.gameObject, endConnectionPoint))
+                        WireCreationEnded?.Invoke(startConnectionPoint as Hole, endConnectionPoint as Hole);
                 }
             }
         }
     }
 
-    private void StartWireCreator(GameObject clickedGameObject, ConnectionPoint sPoint)
+    private bool StartWireCreator(GameObject clickedGameObject, ConnectionPoint sPoint)
     {
         if (isMakingWire)
-            return;
+            return false;
        
         //If we're clicking the same hole
         if (sPoint && clickedGameObject.name == sPoint.gameObject.name)
         {
-            WireCreationCancelled?.Invoke();
+            WireCreationCancelled?.Invoke(startConnectionPoint as Hole);
             //sPoint = null;
             Debug.Log("Clicked the same hole.");
             //isMakingWire = false;
-            return;
+            return false;
         }
 
         clickedGameObject.TryGetComponent(out startConnectionPoint);
@@ -156,29 +166,28 @@ public class WireMaker : Singleton<WireMaker>
         //if the point already has a wire
         if (startConnectionPoint.isTaken)
         {
-            WireCreationCancelled?.Invoke();
-            startConnectionPoint = null;
-            isMakingWire = false;
+            WireCreationCancelled?.Invoke(startConnectionPoint as Hole);
             Debug.Log("This hole is already taken, cancelling wire creation.");
-            return;
+            return false;
         }
         
         isMakingWire = true;
         startConnectionPoint.Highlight(true);
 
         Debug.Log("Creating wire from hole: " + clickedGameObject.name);
+        return true;
     }
 
-    private void EndWireCreator(GameObject clickedGameObject, ConnectionPoint ePoint)
+    private bool EndWireCreator(GameObject clickedGameObject, ConnectionPoint ePoint)
     {
         if (!isMakingWire)
-            return;
+            return false;
 
         //If the end hole is the same as the start hole
         if (clickedGameObject.name == startConnectionPoint.gameObject.name)
         {
             Debug.Log("Tried to use the start point as the end point");
-            return;
+            return false;
         }
 
         clickedGameObject.TryGetComponent(out endConnectionPoint);
@@ -186,44 +195,35 @@ public class WireMaker : Singleton<WireMaker>
         if (endConnectionPoint.isTaken)
         {
             Debug.Log("This hole is already taken, choose another.");
-            endConnectionPoint = null;
-            return;
+            WireCreationCancelled?.Invoke(endConnectionPoint as Hole);
+            return false;
         }
 
         if (!startConnectionPoint.powered && !endConnectionPoint.powered)
         {
             Debug.Log("The starting point must be powered, cancelling wire creation");
-            WireCreationCancelled?.Invoke();
-
-            startConnectionPoint = null;
-            endConnectionPoint = null;
-            isMakingWire = false;
-           
-            return;
+            WireCreationCancelled?.Invoke(endConnectionPoint as Hole);
+            return false;
         }
 
         if (!ValidateConnectionPoints())
         {
             Debug.Log("Invalid connection points, cancelling wire creation");
-            return;
+            return false;
         }
 
         if (!HandleCircuitConnection(out var parentPoint, out var childPoint))
         {
             Debug.Log("Failed to handle circuit connection, cancelling wire creation");
-            isMakingWire = false;
-            startConnectionPoint = null;
-            endConnectionPoint = null;
-            
-            return;
+            WireCreationCancelled?.Invoke(endConnectionPoint as Hole);
+            return false;
         }
+        
         Wire wireComponent = CreateWireBetweenTwoPoints(parentPoint, childPoint);
         Debug.Log("Ending wire from hole: " + clickedGameObject.name);
         
-        startConnectionPoint = null;
-        endConnectionPoint = null;
-        isMakingWire = false;
-        numberOfWires++;
+
+        return true;
     }
 
     private bool HandleCircuitConnection(out ConnectionPoint parentPoint, out ConnectionPoint childPoint)

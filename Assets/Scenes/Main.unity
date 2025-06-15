@@ -402,8 +402,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 612dc93d49c4ccd469b869f0a90ce57c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cameraSpeed: 6
-  zoomSpeed: 10
+  cameraSpeed: 8
+  zoomSpeed: 20
   inputActions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
 --- !u!114 &330585549
 MonoBehaviour:
@@ -688,6 +688,7 @@ GameObject:
   - component: {fileID: 525351255}
   - component: {fileID: 525351254}
   - component: {fileID: 525351253}
+  - component: {fileID: 525351256}
   m_Layer: 5
   m_Name: GameUI
   m_TagString: Untagged
@@ -745,6 +746,18 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &525351256
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 525351252}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4fd3ef666552463090feff3e88ffef54, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &690783827
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -82,7 +82,7 @@ public class ConnectionPoint : MonoBehaviour
     {
     }
 
-    private void OnWireCreationCancelled()
+    private void OnWireCreationCancelled(Hole _)
     {
         RemoveHighlight(true);
     }
