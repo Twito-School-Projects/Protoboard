@@ -58,6 +58,8 @@ public class Battery : ElectronicComponent
         {
             Debug.Log(foundNode.Data.name);
         }
+
+        ComponentTracker.Instance.breadboard.SetStartVoltage(voltage);
     }
 
     private ConnectionPoint ConnectElectrodesToBreadboard(Hole startHole, Hole endHole, BatteryElectrode electrode)

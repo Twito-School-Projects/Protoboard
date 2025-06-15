@@ -4,134 +4,69 @@ using UnityEngine;
 
 public class LED : ElectronicComponent
 {
-    private static readonly int EmissionColor = Shader.PropertyToID("_EmissionColor");
+    private static readonly int EmissionColorID = Shader.PropertyToID("_EmissionColor");
+    private static readonly int ColorID = Shader.PropertyToID("_Color");
     
-    public Hole anodeHole;
-    public Hole cathodeHole;
 
-    public Transform anodeLocation;
-    public Transform cathodeLocation;
-    
+    public Renderer lampRenderer;
     public Material lampMaterial;
     public float emissionIntensity = 0.2f;
+    public float emissionMultiplier = 5f;
     
     private Color startEmissiveColour;
+    private Color startColour;
+    private float alpha = 0.6f;
     
     private new void Start()
     {
         base.Start();
         isUnidirectional = false;
-        startEmissiveColour = lampMaterial.GetColor(EmissionColor);
+        lampMaterial = lampRenderer.materials.First(x => x.name.Contains("lightMat"));
+        
+        startEmissiveColour = lampMaterial.GetColor(EmissionColorID);
+        startColour = lampMaterial.GetColor(ColorID);
     }
 
     private new void Update()
     {
         base.Update();
         if (anodeHole && cathodeHole)
-            //hasCircuitCompleted = CircuitManager.Instance.HasValidPath(anodeHole, cathodeHole) && cathodeHole.powered;
+            hasCircuitCompleted = anodeHole.wasPropagated && cathodeHole.wasPropagated;
         
 
         if (hasCircuitCompleted)
         {
+            lampMaterial.EnableKeyword("_EMISSION");
             SetLedIntensity();
         }
         else
         {
-            lampMaterial.SetColor(EmissionColor, startEmissiveColour);
+            lampMaterial.DisableKeyword("_EMISSION");
         }
             //CircuitManager.Instance.PrintPaths(CircuitManager.Instance.Trees.First().Value);
     }
 
     private void SetLedIntensity()
     {
-        emissionIntensity = cathodeHole.voltage;
-        lampMaterial.SetColor(EmissionColor, startEmissiveColour * emissionIntensity);
-    }
-    
-    public override bool TrySnapToBreadboard(Hole initialHole)
-    {
-        Hole cathodeHole = initialHole;
-        Hole anodeHole = FindNearestHole(anodeLocation.position, cathodeHole);
-
-        if (anodeHole)
-        {
-            SnapToHole(cathodeLocation, initialHole);
-            SnapToHole(anodeLocation, anodeHole);
-
-            this.cathodeHole = initialHole;
-            this.anodeHole = anodeHole;
-            
-            Debug.Log(cathodeHole.name);
-            Debug.Log(anodeHole.name);
-    
-            Vector3 midpoint = new Vector3(
-                (cathodeHole.transform.position.x + anodeHole.transform.position.x) / 2,
-                transform.position.y,
-                cathodeHole.transform.position.z
-            );
-            transform.position = midpoint;
-        }
-
-        // Check if both pins can snap to valid holes
-        return anodeHole && cathodeHole && anodeHole != cathodeHole;
-    }
-    
-    public override void OnDragStart()
-    {
-        base.OnDragStart();
-        
-        // Clear hole occupancy when starting to drag
-        if (anodeHole != null) anodeHole.ClearOccupancy();
-        if (cathodeHole != null) cathodeHole.ClearOccupancy();
+        emissionIntensity = Mathf.Clamp(CalculateEmissionIntensity(), 1, 10 );
+        lampMaterial.SetColor(EmissionColorID, startEmissiveColour * emissionIntensity);
     }
 
-    protected override void Deleted()
+    protected override Vector3 CalculateMidpoint()
     {
-        if (!cathodeHole.powered) return;
-        if (isInPlacementMode) return;
-        
-        //having power flow from the cathode to the anode
-        var cathodeNode = CircuitManager.Instance.FindNodeInTrees(cathodeHole);
-        var anodeNode = cathodeNode.Children.FirstOrDefault(x => x.Data == anodeHole);
-
-        if (cathodeNode == null)
-        {
-            throw new Exception("Something is very wrong");
-        }
-        if (anodeNode == null)
-        {
-            throw new Exception("Something is very wrong");
-        }
-    
-        CircuitManager.Instance.DisconnectNodes(cathodeNode.Data, anodeNode.Data);
+        return new Vector3(
+            (cathodeHole.transform.position.x + anodeHole.transform.position.x) / 2,
+            transform.position.y,
+            cathodeHole.transform.position.z
+        );
     }
-    
-    public override void OnPlaced()
-    {
-        base.OnPlaced();
-        if (!cathodeHole.powered) return;
-        
-        //having power flow from the cathode to the anode
-        var cathodeNode = CircuitManager.Instance.FindNodeInTree(TreeType.Battery, cathodeHole);
-        var anodeNode = CircuitManager.Instance.FindNodeInTree(TreeType.Battery, anodeHole);
 
-        if (cathodeNode == null)
-        {
-            Debug.Log("Cathode is not in the tree, something is wrong" % Colorize.Orange);
-            return;
-        }
-        
-        anodeNode ??= CircuitManager.Instance.FindNodeInTree(TreeType.DisconnectedBattery, anodeHole);
-        if (anodeNode == null)
-        {
-            anodeNode = CircuitManager.Instance.AddChild(ref cathodeNode, ref anodeHole);
-            CircuitManager.Instance.PropagatePower(cathodeNode);
-            Debug.Log("anode not in tree, adding it");
-        }
-        else
-        {
-            CircuitManager.Instance.ReconnectTree(cathodeHole,anodeHole, TreeType.Battery);
-            Debug.Log("anode in tree, reconnecting");
-        }
+    private float CalculateEmissionIntensity()
+    {
+        return emissionIntensity = Mathf.Clamp(
+            cathodeHole.currentVoltage * emissionMultiplier, 
+            0.1f, 
+            10f
+        );
     }
 }

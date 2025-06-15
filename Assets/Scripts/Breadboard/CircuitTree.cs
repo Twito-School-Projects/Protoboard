@@ -10,7 +10,7 @@ public class CircuitNode
     public ConnectionPoint Data { get; set; }
     public List<CircuitNode> Children { get; } = new List<CircuitNode>();
     public CircuitNode Parent { get; set; }
-
+    
     public CircuitNode(ConnectionPoint data)
     {
         Data = data;
@@ -153,4 +153,5 @@ public class CircuitTree
             return getPaths0(head);
         }
     }
+    
 }

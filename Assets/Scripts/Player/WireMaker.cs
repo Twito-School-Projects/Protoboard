@@ -204,28 +204,18 @@ public class WireMaker : Singleton<WireMaker>
             Debug.Log("Invalid connection points, cancelling wire creation");
             return;
         }
-        Debug.Log("Ending wire from hole: " + clickedGameObject.name);
 
         if (!HandleCircuitConnection(out var parentPoint, out var childPoint))
         {
             Debug.Log("Failed to handle circuit connection, cancelling wire creation");
+            isMakingWire = false;
+            startConnectionPoint = null;
+            endConnectionPoint = null;
+            
             return;
         }
         Wire wireComponent = CreateWireBetweenTwoPoints(parentPoint, childPoint);
-
-        //positive electrode
-        // if (startConnectionPoint.type == ConnectionPointType.Battery && startConnectionPoint.charge == Charge.Positive)
-        // {
-        //     if (endConnectionPoint.type == ConnectionPointType.Rail)
-        //     {
-        //         var connectionPoint = (Hole)endConnectionPoint;
-        //         if (connectionPoint.parentBreadboard.CircuitTree.Root == null)
-        //         {
-        //             //this positive rail is now the root rail
-        //             connectionPoint.parentBreadboard.CircuitTree.Root = new CircuitNode(startConnectionPoint);
-        //         }
-        //     }
-        // }
+        Debug.Log("Ending wire from hole: " + clickedGameObject.name);
         
         startConnectionPoint = null;
         endConnectionPoint = null;
@@ -267,13 +257,11 @@ public class WireMaker : Singleton<WireMaker>
         //if the child node is by itself
         if (possibleDisconnectedChildNode == null)
         {
-            CircuitManager.Instance.AddChild(ref parentNode, ref childPoint);
+            var childNode = CircuitManager.Instance.AddChild(ref parentNode, ref childPoint);
             
             if (childPoint.type == ConnectionPointType.Rail && childPoint.charge == Charge.Negative)
             {
-                var parentTree = CircuitManager.Instance.FindTree(parentPoint);
-                parentTree.IsCompleted = true;
-
+                CircuitManager.Instance.PropagateUp(childNode);
                 Debug.Log("Complete circuit" % Colorize.Green);
             }
         } else //if the child node is its own circuit tree that was previously disconnected

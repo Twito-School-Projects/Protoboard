@@ -26,7 +26,7 @@ public class PlacementValidator : MonoBehaviour
         var warnings = new List<string>();
         
         // Check for overlapping components
-        if (HasOverlappingComponents(mousePosition))
+        if (HasOverlappingComponents(mousePosition, componentData))
         {
             return new PlacementValidationResult(false, "Cannot place here - overlapping with existing component");
         }
@@ -54,10 +54,22 @@ public class PlacementValidator : MonoBehaviour
         return new PlacementValidationResult(true, "", warnings);
     }
     
-    private bool HasOverlappingComponents(Vector3 position)
+    private bool HasOverlappingComponents(Vector3 position, ComponentData componentData)
     {
         Collider[] overlapping = Physics.OverlapSphere(position, overlapCheckRadius, componentLayer);
-        return overlapping.Length > 0;
+        List<Collider> overlappingList = new List<Collider>(overlapping);
+        
+        int index = -1;
+        for (int i = 0; i < overlapping.Length; i++)
+        {
+            var collider = overlappingList[i];
+            if (collider.name.Contains(componentData.componentName))
+            {
+                overlappingList.Remove(collider);
+                break;
+            }
+        }
+        return overlappingList.Count > 0;
     }
     
     private bool IsValidSurface(Vector3 position, ComponentData componentData)

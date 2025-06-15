@@ -41,15 +41,15 @@ public class  ComponentPlacementSystem : Singleton<ComponentPlacementSystem>
     private Camera mainCamera;
     private PlacementValidator validator;
     private PlacementPreview previewRenderer;
-    private SnapSystem snapSystem;
     private Hole highlightedConnectPoint;
 
     private void Awake()
     {
+        base.Awake();
+        
         mainCamera = Camera.main;
         validator = GetComponent<PlacementValidator>();
         previewRenderer = GetComponent<PlacementPreview>();
-        snapSystem = GetComponent<SnapSystem>();
     }
     
     private void OnEnable()

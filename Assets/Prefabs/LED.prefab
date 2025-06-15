@@ -186,7 +186,8 @@ MonoBehaviour:
   cathodeHole: {fileID: 0}
   anodeLocation: {fileID: 5102647922349065953}
   cathodeLocation: {fileID: 1029661741513655957}
-  lampMaterial: {fileID: 2100000, guid: d11f1c1088f63e7418e9242dbebbadea, type: 2}
+  lampRenderer: {fileID: 8947457361638486856}
+  lampMaterial: {fileID: 0}
   emissionIntensity: 0.2
 --- !u!54 &5539558142414799892
 Rigidbody:

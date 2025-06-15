@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class Hole : ConnectionPoint
@@ -10,14 +12,13 @@ public class Hole : ConnectionPoint
     public Breadboard parentBreadboard;
     public Terminal parentTerminal;
     public Rail parentRail;
-
+    
+    public List<Resistor> Resistors = new List<Resistor>();
 
     public bool IsNegativeRail => parentRail != null && charge == Charge.Negative;
     public bool IsPositiveRail => parentRail != null && charge == Charge.Positive;
     public bool IsTerminal => parentTerminal != null && charge == Charge.None;
-
-
-
+    
     public void ClearOccupancy()
     {
         IsOccupied = false;
@@ -43,12 +44,13 @@ public class Hole : ConnectionPoint
         if (powered)
         {
             Debug_SetPoweredOnColour();
-            voltage = 1.0f;
+            currentVoltage = 1.0f;
         }
             
         else
             Debug_SetPoweredOffColour();
-        
+
+        currentVoltage = Math.Clamp(startVoltage - Resistors.Sum(x => x.GetVoltageDrop()), 0, startVoltage);
     }
 
     public override void ConnectToHole(ConnectionPoint hole)
@@ -104,7 +106,7 @@ public class Hole : ConnectionPoint
         }
         else
         {
-            material.color = column % 2 == 0 ? Color.green : Color.darkOrange;
+            material.color = column % 2 == 0 ? Color.green : Color.darkOrchid;
         }
     }
 

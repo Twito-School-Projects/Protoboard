@@ -177,20 +177,24 @@ public class CircuitManager : Singleton<CircuitManager>
     public CircuitNode AddChild(ref CircuitNode parent, ref ConnectionPoint end)
     {
         var node = new CircuitNode(end);
-        var hole = end as Hole;
+        var endHole = end as Hole;
         Debug.Log(end.type);
         //if the child is a terminal, then add the terminals as well
        if (end.type == ConnectionPointType.Terminal)
         {
-            foreach (var h in hole.parentTerminal.holes)
+            var parentHole = parent.Data as Hole;
+            foreach (var adjacentHole in endHole.parentTerminal.holes)
             {
-                if (parent.Children.FirstOrDefault(x => x.Data == h) != null)
+                if (parent.Children.FirstOrDefault(x => x.Data == adjacentHole) != null)
                 {
                     Debug.Log("hole already added to tree");
                     continue;
                 }
+                
+                adjacentHole.Resistors.AddRange(endHole.Resistors.Where(x => !adjacentHole.Resistors.Contains(x)));
+                adjacentHole.Resistors.AddRange(parentHole.Resistors.Where(x => !adjacentHole.Resistors.Contains(x)));
 
-                var childNode = new CircuitNode(h);
+                var childNode = new CircuitNode(adjacentHole);
                 parent.AddChildNode(childNode);
                 Debug.Log("adding child node");
             }
@@ -265,6 +269,12 @@ public class CircuitManager : Singleton<CircuitManager>
             TreeType.DisconnectedArduino => DisconnectedGPIOTrees,
             _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
         };
+        
+        if (dict.ContainsKey(root))
+        {
+            Debug.LogWarning("Tree already exists for this root");
+            return;
+        }
         var tree = new CircuitTree(root);
         dict.Add(root, tree);
     }
@@ -311,5 +321,55 @@ public class CircuitManager : Singleton<CircuitManager>
     
         return false;
 
+    }
+    
+    public void PropagateUp(CircuitNode tailNode)
+    {
+        if (tailNode.Parent == null)
+        {
+            Debug.Log("at the positive rail, cannot propagate up");
+            return;
+        }
+        
+        tailNode.Data.wasPropagated = true;
+        
+        tailNode.Parent.Data.wasPropagated = true;
+        tailNode.Parent.Children.ForEach(x =>
+        {
+            var childData = x.Data as Hole;
+            var tailData = tailNode.Data as Hole;
+            var parentData = tailNode.Parent.Data as Hole;
+            
+            if (childData.name == tailData.name) return;
+            if (childData.column == tailData.column)
+            {
+                foreach (var resistor in parentData.Resistors)
+                {
+                    PropagateResistanceUp(tailNode.Parent, resistor);
+                }
+                childData.wasPropagated = true;
+                Debug.Log("Propagating up from " + childData.name + " to " + tailData.name);
+            }
+        });
+        
+        PropagateUp(tailNode.Parent);
+    }
+    
+    public void PropagateResistanceUp(CircuitNode root, Resistor resistor)
+    {
+        var data = root.Data as Hole;
+        if(!data.Resistors.Contains((resistor))) data.Resistors.Add(resistor);
+        root.Parent.Children.ForEach(c =>
+        {
+            var child = c.Data as Hole; 
+            if (child && (child.IsTerminal || child.IsNegativeRail))
+            {
+                if (!child.Resistors.Contains(resistor))
+                {
+                    //might cause a bug in the future
+                    PropagateResistanceUp(c, resistor);
+                }
+            }
+        });
     }
 }

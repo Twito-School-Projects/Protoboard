@@ -11,6 +11,7 @@ public class Breadboard : ElectronicComponent
     public int numberOfColumns = 30;
     
     public float HoleDistance { get; private set; }
+    public float startVoltage = 0.0f;
     
     private void OnEnable()
     {
@@ -156,6 +157,28 @@ public class Breadboard : ElectronicComponent
             parentRail.holes.Add(hole);
             if (hole.charge == Charge.Positive) 
                 CircuitManager.Instance.Create(TreeType.Battery, hole);
+        }
+    }
+
+    public void SetStartVoltage(float voltage)
+    {
+        startVoltage = voltage;
+        foreach (var terminal in terminals.Values)
+        {
+            foreach (var hole in terminal.holes)
+            {
+                hole.startVoltage = voltage;
+                hole.currentVoltage = voltage;
+            }
+        }
+
+        foreach (var rail in rails.Values)
+        {
+            foreach (var hole in rail.holes)
+            {
+                hole.startVoltage = voltage;
+                hole.currentVoltage = voltage;
+            }
         }
     }
 }

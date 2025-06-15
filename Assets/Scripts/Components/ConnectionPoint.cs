@@ -25,12 +25,14 @@ public class ConnectionPoint : MonoBehaviour
     public ConnectionPoint nextConnectedPoint;
     public ConnectionPoint previousConnectedPoint;
     public Charge charge;
-    public float voltage; //will be within 0f to 1f
+    public float currentVoltage; //will be within 0f to 1f
+    public float startVoltage; //will be within 0f to 1f
     
     public ConnectionPointType type;
     public bool IsOccupied { get; set; } = false;
     public ElectronicComponent OccupiedBy { get; set; } = null;
-    
+    public bool wasPropagated = false;
+
     public void Start()
     {
         MeshRenderer = GetComponent<MeshRenderer>();
@@ -38,6 +40,7 @@ public class ConnectionPoint : MonoBehaviour
 
         startColor = material.color;
         material.color = Color.clear;
+        currentVoltage = startVoltage;
     }
     
     private void OnEnable()
