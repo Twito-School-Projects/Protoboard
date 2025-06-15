@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 49d0376e54584e958aa1b469e693cb69, type: 3}
+  m_Name: BuzzerData
+  m_EditorClassIdentifier: 
+  componentName: Buzzer
+  componentType: 4
+  prefab: {fileID: 4807072058084017223, guid: ef6fd475ace9f904db307d1a066eef90, type: 3}
+  icon: {fileID: 21300000, guid: 104d5d1f5d94fa4419816dd392fead91, type: 3}
+  allowMultiple: 1
+  requiresBreadboard: 1
+  requiresPowerSource: 0
+  snapRadius: 0.5
+  validSurfaces:
+    serializedVersion: 2
+    m_Bits: 256
+  boundsSize: {x: 1, y: 1, z: 1}
+  description: Creates a Buzzer
+  tooltip: Buzzer

@@ -1,4 +1,5 @@
 using System;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using static Unity.VisualScripting.Member;
@@ -30,6 +31,8 @@ public class WireMaker : Singleton<WireMaker>
     public static event Action WireCreationCancelled;
     public static event Action WireCreationStarted;
     public static event Action WireCreationEnded;
+    
+    public LayerMask breadboardLayerMask;
     
     private void OnEnable()
     {
@@ -82,7 +85,7 @@ public class WireMaker : Singleton<WireMaker>
         if (ComponentPlacementSystem.Instance.CurrentState != PlacementState.Idle)
             return;
         
-        if (Physics.Raycast(ray, out hit))
+        if (Physics.Raycast(ray, out hit, breadboardLayerMask))
         {
             if (hit.collider && hit.collider.gameObject.CompareTag("ConnectionPoint"))
             {
@@ -115,7 +118,7 @@ public class WireMaker : Singleton<WireMaker>
         {
             return;
         }
-        if (Physics.Raycast(ray, out hit))
+        if (Physics.Raycast(ray, out hit, breadboardLayerMask))
         {
             if (hit.collider && hit.collider.gameObject.CompareTag("ConnectionPoint"))
             {

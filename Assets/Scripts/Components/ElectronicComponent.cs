@@ -10,6 +10,7 @@ public enum ComponentType
     Breadboard,
     LED,
     Resistor,
+    Buzzer,
     Arduino,
     None
 }
