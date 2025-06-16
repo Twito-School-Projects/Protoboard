@@ -28,7 +28,7 @@ public class  ComponentPlacementSystem : Singleton<ComponentPlacementSystem>
     // Events
     public static event Action<ComponentData> OnPlacementStarted;
     public static event Action<GameObject> OnComponentPlaced;
-    public static event Action OnPlacementCancelled;
+    public static event Action<string> OnPlacementCancelled;
     public static event Action<PlacementValidationResult> OnValidationChanged;
     
     // State
@@ -96,13 +96,13 @@ public class  ComponentPlacementSystem : Singleton<ComponentPlacementSystem>
         return true;
     }
     
-    public void CancelPlacement()
+    public void CancelPlacement(string message)
     {
         if (CurrentState == PlacementState.Idle) return;
         
         DestroyPreviewObject();
         ResetState();
-        OnPlacementCancelled?.Invoke();
+        OnPlacementCancelled?.Invoke(message);
     }
     
     private void CreatePreviewObject()
@@ -211,13 +211,13 @@ public class  ComponentPlacementSystem : Singleton<ComponentPlacementSystem>
         }
         else
         {
-            Debug.Log($"Cannot place component: {validationResult.ErrorMessage}");
+            CancelPlacement(validationResult.ErrorMessage);
         }
     }
     
     private void OnCancelPressed(InputAction.CallbackContext context)
     {
-        CancelPlacement();
+        CancelPlacement("");
     }
     
     private void PlaceComponent(Vector3 position)
@@ -261,6 +261,7 @@ public class  ComponentPlacementSystem : Singleton<ComponentPlacementSystem>
         if (!PreviewObject) return;
         Destroy(PreviewObject);
         PreviewObject = null;
+        PreviewComponent = null;
     }
     
     private void ResetState()

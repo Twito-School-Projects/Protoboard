@@ -26,6 +26,9 @@ public class PlayerCamera : MonoBehaviour
 
     private bool isMoving = false;
 
+    [SerializeField] private float minZoom;
+    [SerializeField] private float maxZoom;
+    
     private void OnEnable()
     {
         inputActions.Enable();
@@ -42,6 +45,7 @@ public class PlayerCamera : MonoBehaviour
     {
         movementAction.Disable();
         zoomAction.Disable();
+        inputActions.Disable();
     }
  
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -55,9 +59,12 @@ public class PlayerCamera : MonoBehaviour
     {
         Vector2 input = movementAction.ReadValue<Vector2>();
         Vector3 movement = new Vector3(input.x, input.y, 0).normalized;
-        transform.Translate(movement *(cameraSpeed * Time.deltaTime));
+        transform.Translate(movement * (cameraSpeed * Time.deltaTime));
 
         var z = zoomAction.ReadValue<Vector2>().y;
-        mainCamera.orthographicSize -= z * zoomSpeed * Time.deltaTime;
+        float zoomAmount =  z * zoomSpeed * Time.deltaTime;
+
+        mainCamera.orthographicSize -= zoomAmount;
+        mainCamera.orthographicSize = Mathf.Clamp(mainCamera.orthographicSize, minZoom, maxZoom);
     }
 }

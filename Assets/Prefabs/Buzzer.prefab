@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 4522237481323971805}
   - component: {fileID: 6530572233728986731}
   - component: {fileID: 3758086819424645496}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Cube (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -97,7 +97,7 @@ GameObject:
   - component: {fileID: 3188704459514736647}
   - component: {fileID: 6445088127083721397}
   - component: {fileID: 2373230505868112064}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Cathode
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -183,7 +183,7 @@ GameObject:
   - component: {fileID: 7667650149218697371}
   - component: {fileID: 3417857276982978067}
   - component: {fileID: 1905495716431366031}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Cube (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -271,7 +271,7 @@ GameObject:
   - component: {fileID: 7636596715314349700}
   - component: {fileID: 1381690099946210262}
   - component: {fileID: -1136107280622234334}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Buzzer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -308,7 +308,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rb: {fileID: 7636596715314349700}
   isUnidirectional: 0
-  renderers: []
+  renderers:
+  - {fileID: 3413310902302530871}
+  - {fileID: 8783780129715839867}
+  - {fileID: 2373230505868112064}
+  - {fileID: 4946969417728252009}
+  - {fileID: 1905495716431366031}
+  - {fileID: 3758086819424645496}
   componentType: 4
   isInPlacementMode: 0
   isSelectedFromUI: 0
@@ -317,7 +323,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 257
   mouseTargetPeg: {fileID: 3188704459514736647}
-  inputActions: {fileID: 0}
+  inputActions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   collider: {fileID: 1381690099946210262}
   hasCircuitCompleted: 0
   anodeHole: {fileID: 0}
@@ -325,6 +331,7 @@ MonoBehaviour:
   anodeLocation: {fileID: 5003107206703594112}
   cathodeLocation: {fileID: 3188704459514736647}
   audioData: {fileID: -1136107280622234334}
+  delayBeforePlaying: 0.5
 --- !u!54 &7636596715314349700
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -481,7 +488,7 @@ GameObject:
   - component: {fileID: 1532111994225065893}
   - component: {fileID: 2527647359478538553}
   - component: {fileID: 3413310902302530871}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Base
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -568,7 +575,7 @@ GameObject:
   - component: {fileID: 5003107206703594112}
   - component: {fileID: 467737459621531261}
   - component: {fileID: 8783780129715839867}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Anode
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -654,7 +661,7 @@ GameObject:
   - component: {fileID: 4312684252982553182}
   - component: {fileID: 144952621651936562}
   - component: {fileID: 4946969417728252009}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Cube
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -738,7 +745,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8314228387034061238}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Plus
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -771,7 +778,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6585494452532404633}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Model
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -807,7 +814,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3996614099782860231}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Minus
   m_TagString: Untagged
   m_Icon: {fileID: 0}

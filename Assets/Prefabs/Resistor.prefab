@@ -71,7 +71,7 @@ MonoBehaviour:
   cathodeHole: {fileID: 0}
   anodeLocation: {fileID: 8773834979577075523}
   cathodeLocation: {fileID: 3094443262818709080}
-  resistance: 0.3
+  resistance: 0.5
 --- !u!33 &2174824709067725159
 MeshFilter:
   m_ObjectHideFlags: 0

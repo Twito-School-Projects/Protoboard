@@ -508,6 +508,17 @@
                 },
                 {
                     "name": "",
+                    "id": "0bb7adc1-59b4-4b57-b5d9-6536f09e3808",
+                    "path": "<Keyboard>/q",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Keyboard&Mouse;Gamepad",
+                    "action": "Cancel",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
                     "id": "09c186af-2e5a-48a4-ad5c-432b696153b3",
                     "path": "<Mouse>/position",
                     "interactions": "",

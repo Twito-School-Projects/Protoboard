@@ -23,6 +23,7 @@ public class PlaceUIObject : Singleton<PlaceUIObject>
     private void OnDisable()
     {
         mouseClick.performed -= PlaceComponent;
+        mouseClick.Disable();
     }
 
     //when the user wants to place the componenet

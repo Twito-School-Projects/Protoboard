@@ -3,11 +3,11 @@ using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-public class ActionUI : MonoBehaviour
+public class ControlsUI : MonoBehaviour
 {
     
     private VisualElement m_Root;
-    private Label actionLabel;
+    private Label controlsLabel;
     
     private void OnEnable()
     {
@@ -34,46 +34,39 @@ public class ActionUI : MonoBehaviour
 
     private void OnWireCreationEnded(Hole obj, Hole obj2)
     {
-        actionLabel.text = "Created wire from " + obj + " to " + obj2;
+        controlsLabel.text = "";
     }
 
     private void OnWireCreationCancelled(Hole obj)
     {
-        Cancelled(obj).AsTask().Wait();
-    }
-    
-    private async UniTask Cancelled(Hole obj)
-    {
-        actionLabel.text = "Cancelled wire creation for some reason";
-        await UniTask.Delay(1000);
-        actionLabel.text = "";
+        controlsLabel.text = "";
+
     }
 
     private void OnWireCreationStarted(Hole obj)
     {
-        actionLabel.text = "Starting wire on " + obj;
-    }
-
-
-    private void SetupUI()
-    {
-        m_Root = GetComponentInChildren<UIDocument>().rootVisualElement;
-        actionLabel = m_Root.Q<Label>("ActionIndicator");
-        actionLabel.text = "";
+        controlsLabel.text = "Press 'ESC' or 'Q' to cancel";
     }
     
     private void OnPlacementStarted(ComponentData componentData)
     {
-        actionLabel.text = "Placing " + componentData.componentName;
+        controlsLabel.text = "Press 'ESC' or 'Q' to cancel";
     }
     
     private void OnComponentPlaced(GameObject placedComponent)
     {
-        actionLabel.text = "Placed " + placedComponent.name.Split(" ")[0];
+        controlsLabel.text = "";
     }
     
     private void OnPlacementCancelled(string message)
     {
-        actionLabel.text = message;
+        controlsLabel.text = "";
+    }
+    
+    private void SetupUI()
+    {
+        m_Root = GetComponentInChildren<UIDocument>().rootVisualElement;
+        controlsLabel = m_Root.Q<Label>("ControlsIndicator");
+        controlsLabel.text = "";
     }
 }

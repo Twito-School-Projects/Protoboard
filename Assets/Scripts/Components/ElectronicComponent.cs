@@ -81,7 +81,6 @@ public class ElectronicComponent : MonoBehaviour, IDrag
     private void OnDisable()
     {
         mouseClick.performed -= MousePressed;
-
     }
 
     // Update is called once per frame
@@ -154,7 +153,7 @@ public class ElectronicComponent : MonoBehaviour, IDrag
                     {
                         if (!material.HasProperty(Color1))
                         {
-                            throw new Exception("Material does not have _Color property: " + material.name);
+                            Debug.Log("Material does not have _Color property: " + material.name);
                         }
 
                         // Restore original color
@@ -227,7 +226,7 @@ public class ElectronicComponent : MonoBehaviour, IDrag
             //prevents the other peg using the hole alrady
             if (hole && hole.name == other.name) continue;
             
-            if (hole && !hole.IsOccupied)
+            if (hole && !hole.isTaken)
             {
                 //Debug.Log("Find: " + hole.name);
                 float distance = Vector3.Distance(position, hole.transform.position);
@@ -247,7 +246,7 @@ public class ElectronicComponent : MonoBehaviour, IDrag
         if (targetHole != null)
         {
             componentPin.position = targetHole.transform.position;
-            targetHole.IsOccupied = true;
+            targetHole.isTaken = true;
             targetHole.OccupiedBy = this;
         }
     }
@@ -288,25 +287,27 @@ public class ElectronicComponent : MonoBehaviour, IDrag
     
     protected virtual void Deleted()
     {
-        if (componentType == ComponentType.Breadboard || componentType == ComponentType.Battery) return;
-
-        if (!cathodeHole.powered) return;
-        if (isInPlacementMode) return;
-        
-        //having power flow from the cathode to the anode
-        var cathodeNode = CircuitManager.Instance.FindNodeInTrees(cathodeHole);
-        var anodeNode = cathodeNode.Children.FirstOrDefault(x => x.Data == anodeHole);
-
-        if (cathodeNode == null)
-        {
-            throw new Exception("Something is very wrong");
-        }
-        if (anodeNode == null)
-        {
-            throw new Exception("Something is very wrong");
-        }
-    
-        CircuitManager.Instance.DisconnectNodes(cathodeNode.Data, anodeNode.Data);
+        // if (componentType == ComponentType.Breadboard || componentType == ComponentType.Battery) return;
+        //
+        // if (!cathodeHole.powered) return;
+        // if (isInPlacementMode) return;
+        //
+        // //having power flow from the cathode to the anode
+        // var cathodeNode = CircuitManager.Instance.FindNodeInTrees(cathodeHole);
+        // var anodeNode = cathodeNode.Children.First(x => x.Data == anodeHole);
+        //
+        // if (cathodeNode == null)
+        // {
+        //     Debug.Log("Something is very wrong");
+        //     return;
+        // }
+        // if (anodeNode == null)
+        // {
+        //     Debug.Log("Something is very wrong");
+        //     return;
+        // }
+        //
+        // CircuitManager.Instance.DisconnectNodes(cathodeNode.Data, anodeNode.Data);
     }
     
     public virtual void OnPlaced()

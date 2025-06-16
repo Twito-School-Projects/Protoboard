@@ -25,13 +25,17 @@ public class PlacementValidator : MonoBehaviour
     {
         var warnings = new List<string>();
         
+        if (hole.powered == false) 
+        {
+            return new PlacementValidationResult(false, "Cannot place here - hole is not powered");
+        }
         // Check for overlapping components
         if (HasOverlappingComponents(mousePosition, componentData))
         {
             return new PlacementValidationResult(false, "Cannot place here - overlapping with existing component");
         }
 
-        if (hole.IsOccupied || hole.isTaken)
+        if (hole.isTaken)
         {
             return new PlacementValidationResult(false, "Cannot place here - occupied by another component");
         }
@@ -98,6 +102,7 @@ public class PlacementValidator : MonoBehaviour
                 
             case ComponentType.LED:
             case ComponentType.Resistor:
+            case ComponentType.Buzzer:
                 if (componentData.requiresBreadboard && !ComponentTracker.Instance.breadboard)
                 {
                     return new PlacementValidationResult(false, "Breadboard required for this component");

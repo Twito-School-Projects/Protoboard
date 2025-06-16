@@ -10,6 +10,7 @@ public class WireMaker : Singleton<WireMaker>
     [SerializeField] private InputActionAsset inputActions;
 
     private InputAction mouseClick;
+    private InputAction cancelAction;
 
     [SerializeField] private GameObject wirePrefab;
 
@@ -35,27 +36,35 @@ public class WireMaker : Singleton<WireMaker>
     {
         var map = inputActions.FindActionMap("Player");
         mouseClick = map.FindAction("Click");
-
+        cancelAction = inputActions.FindAction("UI/Cancel");
+        
+        cancelAction.Enable();
         mouseClick.Enable();
+        
         mouseClick.performed += MousePressed;
+        cancelAction.performed += CancelActionOnPerformed;
         
         WireCreationStarted += OnWireCreationStarted;
         WireCreationEnded += OnWireCreationEnded;
         WireCreationCancelled += OnWireCreationCancelled;
     }
 
-    private void OnWireCreationCancelled(Hole _)
+    private void CancelActionOnPerformed(InputAction.CallbackContext obj)
     {
-        startConnectionPoint = null;
-        endConnectionPoint = null;
-        isMakingWire = false;
+        if (!isMakingWire)
+            return;
+        
+        WireCreationCancelled?.Invoke(null);
     }
 
 
     private void OnDisable()
     {
-        mouseClick.Disable();
         mouseClick.performed -= MousePressed;
+        cancelAction.performed -= CancelActionOnPerformed;
+        
+        mouseClick.Disable();
+        cancelAction.Disable();
 
         inputActions.FindActionMap("Player").Disable();
         
@@ -64,6 +73,14 @@ public class WireMaker : Singleton<WireMaker>
         WireCreationCancelled -= OnWireCreationCancelled;
 
     }
+    
+    private void OnWireCreationCancelled(Hole _)
+    {
+        startConnectionPoint = null;
+        endConnectionPoint = null;
+        isMakingWire = false;
+    }
+
     
     private void OnWireCreationEnded(Hole _, Hole _2)
     {
@@ -187,6 +204,7 @@ public class WireMaker : Singleton<WireMaker>
         if (clickedGameObject.name == startConnectionPoint.gameObject.name)
         {
             Debug.Log("Tried to use the start point as the end point");
+            WireCreationCancelled?.Invoke(null);
             return false;
         }
 
@@ -209,6 +227,7 @@ public class WireMaker : Singleton<WireMaker>
         if (!ValidateConnectionPoints())
         {
             Debug.Log("Invalid connection points, cancelling wire creation");
+            WireCreationCancelled?.Invoke(null);
             return false;
         }
 
@@ -231,6 +250,7 @@ public class WireMaker : Singleton<WireMaker>
         parentPoint = startConnectionPoint;
         childPoint = endConnectionPoint;
         
+        if (!DetermineParentPoint(ref parentPoint, ref childPoint)) return false;
         //there are already some connections
         var possibleTree = CircuitManager.Instance.GetTree(parentPoint as Hole);
         if (possibleTree == null)
@@ -241,20 +261,24 @@ public class WireMaker : Singleton<WireMaker>
         {
             
         }
-        if (DetermineParentPoint(ref parentPoint, ref childPoint)) return false;
 
         var parentNode = CircuitManager.Instance.FindNodeInTree(TreeType.Battery, parentPoint);
         var possibleDisconnectedChildNode = CircuitManager.Instance.FindNodeInTree(TreeType.DisconnectedBattery, childPoint);
 
         if (parentNode == null)
         {
-            throw new Exception("Parent node is null SOMETHING IS VERY WRONG");
+            WireCreationCancelled?.Invoke(null);
+            Debug.Log("Parent node is null SOMETHING IS VERY WRONG");
+            return false;
         }
 
         if (!(parentPoint as Hole).IsPositiveRail && parentNode.Parent == null)
         {
-            throw new Exception("Parent is not positive rail and has no parent, something is very wrong");
+            WireCreationCancelled?.Invoke(null);
+            Debug.Log("Parent is not positive rail and has no parent, something is very wrong");
+            return false;
         }
+        
         CircuitManager.Instance.PropagatePower(parentNode);
         
         //if the child node is by itself
@@ -282,17 +306,15 @@ public class WireMaker : Singleton<WireMaker>
         {
             parentPoint = startConnectionPoint;
             childPoint = endConnectionPoint;
+            return true;
         }
-        else if (endConnectionPoint.powered)
+        if (endConnectionPoint.powered)
         {
             parentPoint = endConnectionPoint;
             childPoint = startConnectionPoint;
-        }
-        else
-        {
             return true;
         }
-
+        
         return false;
     }
 
@@ -306,6 +328,14 @@ public class WireMaker : Singleton<WireMaker>
 
         //battery to terminal should not work
         if (startConnectionPoint.type == ConnectionPointType.Battery && endConnectionPoint.type == ConnectionPointType.Terminal || endConnectionPoint.type == ConnectionPointType.Battery && startConnectionPoint.type == ConnectionPointType.Terminal)
+        {
+            return false;
+        }
+
+        var s = startConnectionPoint as Hole;
+        var e = endConnectionPoint as Hole;
+
+        if (s.IsNegativeRail && e.IsNegativeRail)
         {
             return false;
         }

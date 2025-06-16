@@ -17,7 +17,6 @@ public class ConnectionPoint : MonoBehaviour
     [HideInInspector]
     public bool hasConstantCharge = false;
 
-    public bool isTaken = false;
     public bool powered;
     public bool isBeingHighlighted = false;
 
@@ -29,7 +28,7 @@ public class ConnectionPoint : MonoBehaviour
     public float startVoltage; //will be within 0f to 1f
     
     public ConnectionPointType type;
-    public bool IsOccupied { get; set; } = false;
+    public bool isTaken  = false;
     public ElectronicComponent OccupiedBy { get; set; } = null;
     public bool wasPropagated = false;
 
@@ -111,7 +110,6 @@ public class ConnectionPoint : MonoBehaviour
         
         RemoveHighlight(true);
         isTaken = true;
-        IsOccupied = true;
         //occupiedby = ???
         
         if (source == this)

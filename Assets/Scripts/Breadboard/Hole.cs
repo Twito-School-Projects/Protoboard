@@ -21,11 +21,9 @@ public class Hole : ConnectionPoint
     
     public void ClearOccupancy()
     {
-        IsOccupied = false;
+        isTaken = false;
         OccupiedBy = null;
     }
-
-    
 
     private new void Start()
     {

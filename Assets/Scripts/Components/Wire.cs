@@ -48,6 +48,7 @@ public class Wire : MonoBehaviour
     private void OnDisable()
     {
         mouseClick.performed -= MousePressed;
+        mouseClick.Disable();
     }
     private void Update()
     {

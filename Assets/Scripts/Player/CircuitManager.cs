@@ -33,15 +33,7 @@ public class CircuitManager : Singleton<CircuitManager>
     {
         Wire.OnWireDeleted -= OnWireDeleted;
     }
-
-    private void Update()
-    {
-        // foreach (var keyValuePair in Trees)
-        // {
-        //     PrintPaths(keyValuePair.Value);
-        // }
-    }
-
+    
     private void OnWireDeleted(Wire arg1, ConnectionPoint start, ConnectionPoint end)
     {
         DisconnectNodes(start, end);
@@ -68,7 +60,8 @@ public class CircuitManager : Singleton<CircuitManager>
     {
         if (parent.charge != Charge.Positive && parent.type != ConnectionPointType.Rail)
         {
-            throw new Exception("Wrong Typ of parent");
+            Debug.Log("Wrong Typ of parent");
+            return false;
         }
         
         var tree = type == TreeType.Arduino ? GPIOTrees : Trees;

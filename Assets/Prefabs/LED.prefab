@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 2111623874965943609}
   - component: {fileID: 4711453937747524242}
   - component: {fileID: 3298024696958564992}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: katod&anod
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -97,7 +97,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1029661741513655957}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Cathode
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -131,7 +131,7 @@ GameObject:
   - component: {fileID: 5615492481401139207}
   - component: {fileID: 5539558142414799892}
   - component: {fileID: -7853465669863138658}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: LED
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -189,6 +189,7 @@ MonoBehaviour:
   lampRenderer: {fileID: 8947457361638486856}
   lampMaterial: {fileID: 0}
   emissionIntensity: 0.2
+  emissionMultiplier: 5
 --- !u!54 &5539558142414799892
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -246,7 +247,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5102647922349065953}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Anode
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -277,7 +278,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2130312651281294035}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Model
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -312,7 +313,7 @@ GameObject:
   - component: {fileID: 8582898277751481294}
   - component: {fileID: 6049103291692933366}
   - component: {fileID: 8947457361638486856}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: lamp
   m_TagString: Untagged
   m_Icon: {fileID: 0}
